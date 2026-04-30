@@ -1,0 +1,1009 @@
+[
+  // ══════════════════════════════════════════════
+  // EUROPA — DEUTSCHLAND & ÖSTERREICH
+  // ══════════════════════════════════════════════
+  {
+    "id": "bundestag",
+    "name": "Bundestag",
+    "url": "https://www.bundestag.de/rss/pressemitteilungen",
+    "category": "Gesetzgebung",
+    "region": "DE",
+    "relevance": 9,
+    "paid": false,
+    "language": "de"
+  },
+  {
+    "id": "kba",
+    "name": "Kraftfahrt-Bundesamt (KBA)",
+    "url": "https://www.kba.de/DE/Service/RSS/Pressemitteilungen/pressemitteilungen_node.html",
+    "category": "Technische Daten",
+    "region": "DE",
+    "relevance": 9,
+    "paid": false,
+    "language": "de"
+  },
+  {
+    "id": "adac",
+    "name": "ADAC News",
+    "url": "https://www.adac.de/rss/news.xml",
+    "category": "Branchennews",
+    "region": "DE",
+    "relevance": 7,
+    "paid": false,
+    "language": "de"
+  },
+  {
+    "id": "autobild",
+    "name": "Auto Bild",
+    "url": "https://www.autobild.de/rss/",
+    "category": "Branchennews",
+    "region": "DE",
+    "relevance": 6,
+    "paid": false,
+    "language": "de"
+  },
+  {
+    "id": "ams",
+    "name": "Auto Motor Sport",
+    "url": "https://www.auto-motor-und-sport.de/feed/",
+    "category": "Branchennews",
+    "region": "DE",
+    "relevance": 6,
+    "paid": false,
+    "language": "de"
+  },
+  {
+    "id": "vda",
+    "name": "VDA",
+    "url": "https://www.vda.de/de/presse/pressemitteilungen.rss",
+    "category": "Marktdaten",
+    "region": "DE",
+    "relevance": 8,
+    "paid": false,
+    "language": "de"
+  },
+  {
+    "id": "handelsblatt",
+    "name": "Handelsblatt Wirtschaft",
+    "url": "https://www.handelsblatt.com/contentexport/feed/themen",
+    "category": "Wirtschaft",
+    "region": "DE",
+    "relevance": 7,
+    "paid": false,
+    "language": "de"
+  },
+  {
+    "id": "spiegel_wirtschaft",
+    "name": "Spiegel Wirtschaft",
+    "url": "https://www.spiegel.de/wirtschaft/index.rss",
+    "category": "Wirtschaft",
+    "region": "DE",
+    "relevance": 6,
+    "paid": false,
+    "language": "de"
+  },
+  {
+    "id": "faz_wirtschaft",
+    "name": "FAZ Wirtschaft",
+    "url": "https://www.faz.net/rss/aktuell/wirtschaft/",
+    "category": "Wirtschaft",
+    "region": "DE",
+    "relevance": 7,
+    "paid": false,
+    "language": "de"
+  },
+  {
+    "id": "manager_magazin",
+    "name": "Manager Magazin",
+    "url": "https://www.manager-magazin.de/themen/rss/",
+    "category": "Wirtschaft",
+    "region": "DE",
+    "relevance": 6,
+    "paid": false,
+    "language": "de"
+  },
+  // ══════════════════════════════════════════════
+  // EUROPA — EU-INSTITUTIONEN
+  // ══════════════════════════════════════════════
+  {
+    "id": "eurlex",
+    "name": "EUR-Lex (EU-Gesetze)",
+    "url": "https://eur-lex.europa.eu/tools/rss.do?content=legis&target=EN",
+    "category": "Gesetzgebung",
+    "region": "EU",
+    "relevance": 9,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "acea",
+    "name": "ACEA (Europ. Automobilhersteller)",
+    "url": "https://www.acea.auto/feed/",
+    "category": "Marktdaten",
+    "region": "EU",
+    "relevance": 9,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "ec_transport",
+    "name": "EU-Kommission Transport",
+    "url": "https://transport.ec.europa.eu/news-events/news_en.rss",
+    "category": "Gesetzgebung",
+    "region": "EU",
+    "relevance": 8,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "unece",
+    "name": "UNECE Transport",
+    "url": "https://unece.org/rss/transport-eng",
+    "category": "Gesetzgebung",
+    "region": "EU",
+    "relevance": 7,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "transport_env",
+    "name": "Transport & Environment",
+    "url": "https://www.transportenvironment.org/feed",
+    "category": "Nachhaltigkeit",
+    "region": "EU",
+    "relevance": 7,
+    "paid": false,
+    "language": "en"
+  },
+  // ══════════════════════════════════════════════
+  // EUROPA — UK
+  // ══════════════════════════════════════════════
+  {
+    "id": "autoexpress",
+    "name": "Auto Express",
+    "url": "https://www.autoexpress.co.uk/feed",
+    "category": "Branchennews",
+    "region": "GB",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "autocar",
+    "name": "Autocar UK",
+    "url": "https://www.autocar.co.uk/rss",
+    "category": "Branchennews",
+    "region": "GB",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "bbc_business",
+    "name": "BBC Business",
+    "url": "https://feeds.bbci.co.uk/news/business/rss.xml",
+    "category": "Wirtschaft",
+    "region": "GB",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "motoringresearch",
+    "name": "Motoring Research",
+    "url": "https://www.motoringresearch.com/feed/",
+    "category": "Branchennews",
+    "region": "GB",
+    "relevance": 5,
+    "paid": false,
+    "language": "en"
+  },
+  // ══════════════════════════════════════════════
+  // EUROPA — FRANKREICH
+  // ══════════════════════════════════════════════
+  {
+    "id": "largus",
+    "name": "L'Argus de l'automobile",
+    "url": "https://www.largus.fr/actualite/rss.xml",
+    "category": "Branchennews",
+    "region": "FR",
+    "relevance": 6,
+    "paid": false,
+    "language": "fr"
+  },
+  {
+    "id": "lefigaro_eco",
+    "name": "Le Figaro Économie",
+    "url": "https://www.lefigaro.fr/rss/figaro_economie.xml",
+    "category": "Wirtschaft",
+    "region": "FR",
+    "relevance": 5,
+    "paid": false,
+    "language": "fr"
+  },
+  {
+    "id": "lesechos",
+    "name": "Les Échos",
+    "url": "https://feeds.lesechos.fr/lesechos-unes",
+    "category": "Wirtschaft",
+    "region": "FR",
+    "relevance": 6,
+    "paid": false,
+    "language": "fr"
+  },
+  // ══════════════════════════════════════════════
+  // EUROPA — ITALIEN
+  // ══════════════════════════════════════════════
+  {
+    "id": "ilsole24ore",
+    "name": "Il Sole 24 Ore",
+    "url": "https://www.ilsole24ore.com/rss/mondo.xml",
+    "category": "Wirtschaft",
+    "region": "IT",
+    "relevance": 5,
+    "paid": false,
+    "language": "it"
+  },
+  // ══════════════════════════════════════════════
+  // EUROPA — SPANIEN
+  // ══════════════════════════════════════════════
+  {
+    "id": "motor_es",
+    "name": "Motor.es",
+    "url": "https://www.motor.es/feed/",
+    "category": "Branchennews",
+    "region": "ES",
+    "relevance": 5,
+    "paid": false,
+    "language": "es"
+  },
+  // ══════════════════════════════════════════════
+  // EUROPA — POLEN
+  // ══════════════════════════════════════════════
+  {
+    "id": "autoswiat",
+    "name": "Auto Świat (PL)",
+    "url": "https://www.auto-swiat.pl/feed",
+    "category": "Branchennews",
+    "region": "PL",
+    "relevance": 6,
+    "paid": false,
+    "language": "pl"
+  },
+  {
+    "id": "moto_pl",
+    "name": "Moto.pl",
+    "url": "https://moto.pl/MotoPL/0,88389.xml",
+    "category": "Branchennews",
+    "region": "PL",
+    "relevance": 5,
+    "paid": false,
+    "language": "pl"
+  },
+  // ══════════════════════════════════════════════
+  // EUROPA — TSCHECHIEN / SLOWAKEI
+  // ══════════════════════════════════════════════
+  {
+    "id": "auto_cz",
+    "name": "Auto.cz",
+    "url": "https://www.auto.cz/rss",
+    "category": "Branchennews",
+    "region": "CZ",
+    "relevance": 5,
+    "paid": false,
+    "language": "cs"
+  },
+  // ══════════════════════════════════════════════
+  // EUROPA — RUMÄNIEN
+  // ══════════════════════════════════════════════
+  {
+    "id": "automarket_ro",
+    "name": "Automarket.ro",
+    "url": "https://www.automarket.ro/rss.xml",
+    "category": "Branchennews",
+    "region": "RO",
+    "relevance": 5,
+    "paid": false,
+    "language": "ro"
+  },
+  // ══════════════════════════════════════════════
+  // EUROPA — NORDICS
+  // ══════════════════════════════════════════════
+  {
+    "id": "bilsport_se",
+    "name": "Bilsport (Schweden)",
+    "url": "https://www.bilsport.se/feed/",
+    "category": "Branchennews",
+    "region": "SE",
+    "relevance": 5,
+    "paid": false,
+    "language": "sv"
+  },
+  // ══════════════════════════════════════════════
+  // OSTEUROPA — UKRAINE
+  // ══════════════════════════════════════════════
+  {
+    "id": "ukrinform",
+    "name": "Ukrinform (Economy)",
+    "url": "https://www.ukrinform.net/rss/economy",
+    "category": "Wirtschaft",
+    "region": "UA",
+    "relevance": 7,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "interfax_ua",
+    "name": "Interfax Ukraine",
+    "url": "https://en.interfax.com.ua/news/economic.xml",
+    "category": "Wirtschaft",
+    "region": "UA",
+    "relevance": 7,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "epravda",
+    "name": "Ekonomichna Pravda (UA)",
+    "url": "https://www.epravda.com.ua/rss/news.xml",
+    "category": "Wirtschaft",
+    "region": "UA",
+    "relevance": 6,
+    "paid": false,
+    "language": "uk"
+  },
+  // ══════════════════════════════════════════════
+  // OSTEUROPA — RUSSLAND (Marktbeobachtung)
+  // ══════════════════════════════════════════════
+  {
+    "id": "autostat_ru",
+    "name": "Autostat (RU)",
+    "url": "https://www.autostat.ru/rss/",
+    "category": "Marktdaten",
+    "region": "RU",
+    "relevance": 7,
+    "paid": false,
+    "language": "ru"
+  },
+  {
+    "id": "rbc_ru",
+    "name": "RBC Russia (Business)",
+    "url": "https://rss.rbc.ru/rbc_all/index.rss",
+    "category": "Wirtschaft",
+    "region": "RU",
+    "relevance": 5,
+    "paid": false,
+    "language": "ru"
+  },
+  // ══════════════════════════════════════════════
+  // USA & NORDAMERIKA
+  // ══════════════════════════════════════════════
+  {
+    "id": "autonews_us",
+    "name": "Automotive News (US)",
+    "url": "https://www.autonews.com/rss/rss.xml",
+    "category": "Branchennews",
+    "region": "US",
+    "relevance": 8,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "autonews_eu",
+    "name": "Automotive News Europe",
+    "url": "https://europe.autonews.com/rss/rss.xml",
+    "category": "Branchennews",
+    "region": "EU",
+    "relevance": 8,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "wardsauto",
+    "name": "WardsAuto",
+    "url": "https://www.wardsauto.com/rss/all",
+    "category": "Marktdaten",
+    "region": "US",
+    "relevance": 8,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "motor_trend",
+    "name": "Motor Trend",
+    "url": "https://www.motortrend.com/rss/all/",
+    "category": "Branchennews",
+    "region": "US",
+    "relevance": 5,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "car_driver",
+    "name": "Car and Driver",
+    "url": "https://www.caranddriver.com/rss/all.xml/",
+    "category": "Branchennews",
+    "region": "US",
+    "relevance": 5,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "nhtsa",
+    "name": "NHTSA (US Fahrzeugsicherheit)",
+    "url": "https://www.nhtsa.gov/rss",
+    "category": "Gesetzgebung",
+    "region": "US",
+    "relevance": 7,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "motor_age",
+    "name": "Motor Age",
+    "url": "https://www.motorageonline.com/rss/all",
+    "category": "Technische Daten",
+    "region": "US",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "aftermarket_biz",
+    "name": "Aftermarket Business World",
+    "url": "https://www.aftermarketbusiness.com/rss/all",
+    "category": "Aftermarket",
+    "region": "US",
+    "relevance": 8,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "sema",
+    "name": "SEMA News",
+    "url": "https://www.sema.org/news-and-events/feed/",
+    "category": "Aftermarket",
+    "region": "US",
+    "relevance": 7,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "abrn",
+    "name": "Automotive Body Repair News",
+    "url": "https://www.abrn.com/rss/all",
+    "category": "Aftermarket",
+    "region": "US",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  // ══════════════════════════════════════════════
+  // GLOBAL — AGENTURENNEWS
+  // ══════════════════════════════════════════════
+  {
+    "id": "reuters_biz",
+    "name": "Reuters Business",
+    "url": "https://feeds.reuters.com/reuters/businessNews",
+    "category": "Wirtschaft",
+    "region": "GLOBAL",
+    "relevance": 7,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "reuters_auto",
+    "name": "Reuters Automotive",
+    "url": "https://feeds.reuters.com/reuters/companyNews",
+    "category": "Branchennews",
+    "region": "GLOBAL",
+    "relevance": 8,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "ap_business",
+    "name": "AP Business",
+    "url": "https://feeds.apnews.com/apf-business",
+    "category": "Wirtschaft",
+    "region": "GLOBAL",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  // ══════════════════════════════════════════════
+  // GLOBAL — ELEKTROMOBILITÄT & EV
+  // ══════════════════════════════════════════════
+  {
+    "id": "electrek",
+    "name": "Electrek",
+    "url": "https://electrek.co/feed/",
+    "category": "Elektromobilität",
+    "region": "GLOBAL",
+    "relevance": 8,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "insideevs",
+    "name": "InsideEVs",
+    "url": "https://insideevs.com/feed/",
+    "category": "Elektromobilität",
+    "region": "GLOBAL",
+    "relevance": 8,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "greencar",
+    "name": "Green Car Reports",
+    "url": "https://www.greencarreports.com/rss/news",
+    "category": "Elektromobilität",
+    "region": "GLOBAL",
+    "relevance": 7,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "ev_magazine",
+    "name": "EV Magazine",
+    "url": "https://evmagazine.com/feed/",
+    "category": "Elektromobilität",
+    "region": "GLOBAL",
+    "relevance": 7,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "cleantechnica",
+    "name": "CleanTechnica",
+    "url": "https://cleantechnica.com/feed/",
+    "category": "Elektromobilität",
+    "region": "GLOBAL",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  // ══════════════════════════════════════════════
+  // GLOBAL — TECH & DIGITAL
+  // ══════════════════════════════════════════════
+  {
+    "id": "techcrunch_auto",
+    "name": "TechCrunch Transportation",
+    "url": "https://techcrunch.com/category/transportation/feed/",
+    "category": "Technologie",
+    "region": "GLOBAL",
+    "relevance": 7,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "verge_transport",
+    "name": "The Verge Transportation",
+    "url": "https://www.theverge.com/rss/transportation/index.xml",
+    "category": "Technologie",
+    "region": "GLOBAL",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "sel",
+    "name": "Search Engine Land",
+    "url": "https://searchengineland.com/feed/",
+    "category": "Digital & SEO",
+    "region": "GLOBAL",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "sej",
+    "name": "Search Engine Journal",
+    "url": "https://www.searchenginejournal.com/feed/",
+    "category": "Digital & SEO",
+    "region": "GLOBAL",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "dc360",
+    "name": "Digital Commerce 360",
+    "url": "https://www.digitalcommerce360.com/feed/",
+    "category": "Digital & SEO",
+    "region": "GLOBAL",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  // ══════════════════════════════════════════════
+  // GLOBAL — LIEFERKETTE & LOGISTIK
+  // ══════════════════════════════════════════════
+  {
+    "id": "supply_chain_dive",
+    "name": "Supply Chain Dive",
+    "url": "https://www.supplychaindive.com/feeds/news/",
+    "category": "Lieferkette",
+    "region": "GLOBAL",
+    "relevance": 7,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "logistics_mgmt",
+    "name": "Logistics Management",
+    "url": "https://www.logisticsmgmt.com/rss/news",
+    "category": "Lieferkette",
+    "region": "GLOBAL",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "freightwaves",
+    "name": "Freight Waves",
+    "url": "https://www.freightwaves.com/news/feed",
+    "category": "Lieferkette",
+    "region": "GLOBAL",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  // ══════════════════════════════════════════════
+  // GLOBAL — ROHSTOFFE & METALLE
+  // ══════════════════════════════════════════════
+  {
+    "id": "mining_com",
+    "name": "Mining.com",
+    "url": "https://www.mining.com/feed/",
+    "category": "Rohstoffe",
+    "region": "GLOBAL",
+    "relevance": 7,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "kitco",
+    "name": "Kitco Metals News",
+    "url": "https://www.kitco.com/rss/news/",
+    "category": "Rohstoffe",
+    "region": "GLOBAL",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  // ══════════════════════════════════════════════
+  // ASIEN
+  // ══════════════════════════════════════════════
+  {
+    "id": "nikkei_asia",
+    "name": "Nikkei Asia",
+    "url": "https://asia.nikkei.com/rss/feed/nar",
+    "category": "Wirtschaft",
+    "region": "JP",
+    "relevance": 7,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "et_auto",
+    "name": "Economic Times Auto (IN)",
+    "url": "https://economictimes.indiatimes.com/industry/auto/rssfeeds/13357270.cms",
+    "category": "Marktdaten",
+    "region": "IN",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "china_daily",
+    "name": "China Daily Business",
+    "url": "https://www.chinadaily.com.cn/rss/bizchina_rss.xml",
+    "category": "Wirtschaft",
+    "region": "CN",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "korea_herald",
+    "name": "Korea Herald Business",
+    "url": "http://www.koreaherald.com/common/rss.php?ct=102",
+    "category": "Wirtschaft",
+    "region": "KR",
+    "relevance": 5,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "bangkok_post",
+    "name": "Bangkok Post Business",
+    "url": "https://www.bangkokpost.com/rss/data/business.xml",
+    "category": "Wirtschaft",
+    "region": "TH",
+    "relevance": 4,
+    "paid": false,
+    "language": "en"
+  },
+  // ══════════════════════════════════════════════
+  // NACHHALTIGKEIT & UMWELT
+  // ══════════════════════════════════════════════
+  {
+    "id": "carbon_brief",
+    "name": "Carbon Brief",
+    "url": "https://www.carbonbrief.org/feed",
+    "category": "Nachhaltigkeit",
+    "region": "GLOBAL",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  // ══════════════════════════════════════════════
+  // STANDARDS & NORMEN
+  // ══════════════════════════════════════════════
+  {
+    "id": "sae",
+    "name": "SAE International",
+    "url": "https://www.sae.org/rss/news",
+    "category": "Technische Daten",
+    "region": "GLOBAL",
+    "relevance": 7,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "tuvsud",
+    "name": "TÜV SÜD News",
+    "url": "https://www.tuvsud.com/de/newsroom/pressemitteilungen.rss",
+    "category": "Technische Daten",
+    "region": "DE",
+    "relevance": 6,
+    "paid": false,
+    "language": "de"
+  },
+
+  // ══════════════════════════════════════════════
+  // KOSTENPFLICHTIGE QUELLEN (Zugangsdaten nötig)
+  // ══════════════════════════════════════════════
+  {
+    "id": "autonews_premium",
+    "name": "Automotive News Premium",
+    "url": "https://www.autonews.com/rss/rss.xml",
+    "category": "Branchennews",
+    "region": "GLOBAL",
+    "relevance": 9,
+    "paid": true,
+    "auth_type": "login",
+    "login_url": "https://www.autonews.com/user/login",
+    "subscriber_rss": "",
+    "language": "en",
+    "description": "Führendes globales Automotive-Fachmagazin"
+  },
+  {
+    "id": "wardsauto_premium",
+    "name": "WardsAuto Premium",
+    "url": "https://www.wardsauto.com/rss/all",
+    "category": "Marktdaten",
+    "region": "GLOBAL",
+    "relevance": 9,
+    "paid": true,
+    "auth_type": "login",
+    "login_url": "https://www.wardsauto.com/user/login",
+    "subscriber_rss": "",
+    "language": "en",
+    "description": "Detaillierte Produktions- und Verkaufszahlen weltweit"
+  },
+  {
+    "id": "spglobal",
+    "name": "S&P Global Mobility",
+    "url": "https://www.spglobal.com/mobility/en/research-analysis.html",
+    "category": "Marktdaten",
+    "region": "GLOBAL",
+    "relevance": 10,
+    "paid": true,
+    "auth_type": "api_key",
+    "login_url": "https://www.spglobal.com/mobility/",
+    "subscriber_rss": "",
+    "language": "en",
+    "description": "Premium Marktdaten (ehem. IHS Markit)"
+  },
+  {
+    "id": "dat",
+    "name": "DAT Report",
+    "url": "https://www.dat.de",
+    "category": "Marktdaten",
+    "region": "DE",
+    "relevance": 9,
+    "paid": true,
+    "auth_type": "api_key",
+    "login_url": "https://www.dat.de",
+    "subscriber_rss": "",
+    "language": "de",
+    "description": "Deutsche Automobil Treuhand — Fahrzeugbewertung & Marktdaten"
+  },
+  {
+    "id": "eurotax",
+    "name": "EurotaxGlass's",
+    "url": "https://www.eurotaxglass.com",
+    "category": "Marktdaten",
+    "region": "EU",
+    "relevance": 8,
+    "paid": true,
+    "auth_type": "login",
+    "login_url": "https://www.eurotaxglass.com",
+    "subscriber_rss": "",
+    "language": "en",
+    "description": "Fahrzeugbewertung und Restwertanalysen Europa"
+  },
+  {
+    "id": "schwacke",
+    "name": "Schwacke (DE)",
+    "url": "https://www.schwacke.de",
+    "category": "Marktdaten",
+    "region": "DE",
+    "relevance": 8,
+    "paid": true,
+    "auth_type": "login",
+    "login_url": "https://www.schwacke.de",
+    "subscriber_rss": "",
+    "language": "de",
+    "description": "Fahrzeugbewertung Deutschland"
+  },
+  {
+    "id": "springer_atz",
+    "name": "ATZ/MTZ (Springer Professional)",
+    "url": "https://www.springerprofessional.de",
+    "category": "Technische Daten",
+    "region": "DE",
+    "relevance": 8,
+    "paid": true,
+    "auth_type": "login",
+    "login_url": "https://www.springerprofessional.de/login",
+    "subscriber_rss": "",
+    "language": "de",
+    "description": "Automobiltechnische Fachzeitschriften ATZ und MTZ"
+  },
+  {
+    "id": "kfzbetrieb",
+    "name": "KFZ-Betrieb Premium",
+    "url": "https://www.kfz-betrieb.vogel.de",
+    "category": "Aftermarket",
+    "region": "DE",
+    "relevance": 8,
+    "paid": true,
+    "auth_type": "login",
+    "login_url": "https://www.kfz-betrieb.vogel.de/login/",
+    "subscriber_rss": "",
+    "language": "de",
+    "description": "Fachmagazin für den Kfz-Handel und Werkstattmarkt"
+  },
+  {
+    "id": "bloomberg_auto",
+    "name": "Bloomberg Automotive",
+    "url": "https://feeds.bloomberg.com/markets/news.rss",
+    "category": "Wirtschaft",
+    "region": "GLOBAL",
+    "relevance": 9,
+    "paid": true,
+    "auth_type": "login",
+    "login_url": "https://www.bloomberg.com/account/signin",
+    "subscriber_rss": "",
+    "language": "en",
+    "description": "Premium Wirtschafts- und Marktdaten"
+  },
+  {
+    "id": "ft_premium",
+    "name": "Financial Times",
+    "url": "https://www.ft.com/rss/home",
+    "category": "Wirtschaft",
+    "region": "GLOBAL",
+    "relevance": 8,
+    "paid": true,
+    "auth_type": "login",
+    "login_url": "https://accounts.ft.com/login",
+    "subscriber_rss": "",
+    "language": "en",
+    "description": "Führende internationale Finanz- und Wirtschaftszeitung"
+  },
+  {
+    "id": "statista_premium",
+    "name": "Statista Premium",
+    "url": "https://www.statista.com",
+    "category": "Marktdaten",
+    "region": "GLOBAL",
+    "relevance": 8,
+    "paid": true,
+    "auth_type": "api_key",
+    "login_url": "https://www.statista.com/login/",
+    "subscriber_rss": "",
+    "language": "de",
+    "description": "Statistiken, Marktdaten und Branchenberichte"
+  },
+  {
+    "id": "lmc_auto",
+    "name": "LMC Automotive",
+    "url": "https://lmc.auto",
+    "category": "Marktdaten",
+    "region": "GLOBAL",
+    "relevance": 9,
+    "paid": true,
+    "auth_type": "api_key",
+    "login_url": "https://lmc.auto/contact/",
+    "subscriber_rss": "",
+    "language": "en",
+    "description": "Fahrzeugproduktions- und Verkaufsprognosen weltweit"
+  },
+  {
+    "id": "motorinform_ua",
+    "name": "Motorinform (UA)",
+    "url": "https://www.motorinform.com.ua/rss",
+    "category": "Marktdaten",
+    "region": "UA",
+    "relevance": 7,
+    "paid": false,
+    "language": "uk"
+  },
+  {
+    "id": "just_auto_premium",
+    "name": "Just Auto Premium",
+    "url": "https://www.just-auto.com/rss/",
+    "category": "Branchennews",
+    "region": "GLOBAL",
+    "relevance": 7,
+    "paid": true,
+    "auth_type": "login",
+    "login_url": "https://www.just-auto.com/login/",
+    "subscriber_rss": "",
+    "language": "en",
+    "description": "Globale Automotive Intelligence Reports"
+  },
+  {
+    "id": "autobiz",
+    "name": "Autobiz B2B",
+    "url": "https://www.autobiz.com",
+    "category": "Marktdaten",
+    "region": "EU",
+    "relevance": 7,
+    "paid": true,
+    "auth_type": "login",
+    "login_url": "https://www.autobiz.com/login",
+    "subscriber_rss": "",
+    "language": "fr",
+    "description": "B2B Gebrauchtwagenmarkt Europa"
+  },
+  {
+    "id": "carsome_data",
+    "name": "Carsome Data (Asien)",
+    "url": "https://www.carsome.com",
+    "category": "Marktdaten",
+    "region": "ASIA",
+    "relevance": 6,
+    "paid": true,
+    "auth_type": "api_key",
+    "login_url": "https://www.carsome.com",
+    "subscriber_rss": "",
+    "language": "en",
+    "description": "Gebrauchtwagenmarkt Südostasien"
+  },
+  {
+    "id": "repairer_driven",
+    "name": "Repairer Driven News",
+    "url": "https://www.repairerdrivennews.com/feed/",
+    "category": "Aftermarket",
+    "region": "US",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  },
+  {
+    "id": "parts_people",
+    "name": "Parts & People",
+    "url": "https://partsandpeople.com/feed/",
+    "category": "Aftermarket",
+    "region": "US",
+    "relevance": 6,
+    "paid": false,
+    "language": "en"
+  }
+]

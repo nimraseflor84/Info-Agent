@@ -1,0 +1,2083 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AUTODOC Info Agent</title>
+  <style>
+    :root {
+      --orange: #F85A00; --peach: #FFBA96; --dark: #131C20;
+      --white: #FFFFFF; --g100: #F5F5F5; --g200: #E8E8E8;
+      --g500: #888; --r: 6px; --shadow: 0 2px 14px rgba(0,0,0,.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter','Segoe UI',sans-serif; background: var(--g100); color: var(--dark); height: 100vh; display: flex; flex-direction: column; overflow: hidden; font-size: 14px; }
+
+    /* HEADER */
+    header { background: var(--dark); color: #fff; padding: 0 20px; height: 54px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-mark { background: var(--orange); color: #fff; font-weight: 800; font-size: 12px; padding: 4px 8px; border-radius: 4px; letter-spacing: .5px; }
+    .logo-text { font-size: 14px; font-weight: 700; }
+    .logo-sub { font-size: 11px; color: var(--peach); }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .lang-select { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.2); padding: 5px 8px; border-radius: var(--r); font-size: 12px; cursor: pointer; }
+    .lang-select option { background: var(--dark); }
+    .status-pill { font-size: 11px; color: var(--peach); display: flex; align-items: center; gap: 5px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #4CAF50; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* BUTTONS */
+    .btn { padding: 7px 13px; border-radius: var(--r); border: none; cursor: pointer; font-size: 12px; font-weight: 600; transition: all .15s; white-space: nowrap; }
+    .btn-primary { background: var(--orange); color: #fff; }
+    .btn-primary:hover { background: #d94e00; }
+    .btn-ghost { background: rgba(255,255,255,.1); color: #fff; }
+    .btn-ghost:hover { background: rgba(255,255,255,.2); }
+    .btn-sm { padding: 4px 10px; font-size: 11px; }
+    .btn-danger { background: #e53935; color: #fff; }
+    .btn-outline { background: transparent; border: 1px solid var(--g200); color: var(--dark); }
+    .btn-outline:hover { background: var(--g100); }
+
+    /* LAYOUT */
+    .layout { display: flex; flex: 1; overflow: hidden; }
+
+    /* SIDEBAR */
+    aside { width: 195px; background: var(--white); border-right: 1px solid var(--g200); display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
+    .sb-section { padding: 14px 10px 6px; }
+    .sb-label { font-size: 10px; font-weight: 700; color: var(--g500); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+    .filter-btn { display: flex; align-items: center; gap: 7px; width: 100%; padding: 7px 9px; border-radius: var(--r); border: none; background: transparent; cursor: pointer; font-size: 12px; color: var(--dark); text-align: left; transition: background .12s; }
+    .filter-btn:hover { background: var(--g100); }
+    .filter-btn.active { background: rgba(248,90,0,.09); color: var(--orange); font-weight: 600; }
+    .f-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .f-count { margin-left: auto; font-size: 10px; background: var(--g100); color: var(--g500); padding: 1px 6px; border-radius: 8px; }
+    .filter-btn.active .f-count { background: rgba(248,90,0,.15); color: var(--orange); }
+    .cat-fav-btn { background: none; border: none; cursor: pointer; font-size: 12px; color: var(--g300); padding: 0 1px; line-height: 1; flex-shrink: 0; transition: color .12s, transform .1s; }
+    .cat-fav-btn:hover { color: var(--orange); transform: scale(1.2); }
+    .cat-fav-btn.on { color: var(--orange); }
+    .filter-btn.fav-cat { border-left: 2px solid var(--orange); padding-left: 7px; }
+    .cat-fav-divider { font-size: 9px; color: var(--g400); text-transform: uppercase; letter-spacing: .6px; padding: 6px 9px 2px; }
+
+    /* RELEVANZ SLIDER */
+    .relevance-control { padding: 10px 10px 6px; }
+    .relevance-label { font-size: 10px; color: var(--g500); font-weight: 700; text-transform: uppercase; letter-spacing: .8px; display: flex; justify-content: space-between; margin-bottom: 5px; }
+    input[type=range] { width: 100%; accent-color: var(--orange); }
+
+    /* ARTIKEL-LISTE */
+    .list-panel { width: 330px; background: var(--white); border-right: 1px solid var(--g200); display: flex; flex-direction: column; flex-shrink: 0; }
+    .list-header { padding: 12px 14px 10px; border-bottom: 1px solid var(--g200); display: flex; align-items: center; justify-content: space-between; }
+    .list-title { font-size: 12px; font-weight: 700; }
+    .list-date { font-size: 11px; color: var(--g500); }
+    .articles-scroll { flex: 1; overflow-y: auto; }
+    .article-card { padding: 12px 14px; border-bottom: 1px solid var(--g200); cursor: pointer; transition: background .1s; }
+    .article-card:hover { background: var(--g100); }
+    .article-card.active { background: rgba(248,90,0,.06); border-left: 3px solid var(--orange); }
+    .card-meta { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
+    .card-cat { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; padding: 2px 5px; border-radius: 3px; }
+    .card-region { font-size: 10px; color: var(--g500); margin-left: auto; }
+    .rel-bar { display: flex; gap: 1px; }
+    .rel-pip { width: 4px; height: 8px; border-radius: 1px; background: var(--g200); }
+    .rel-pip.on { background: var(--orange); }
+    .card-title { font-size: 12px; font-weight: 600; line-height: 1.4; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-source { font-size: 10px; color: var(--g500); }
+    .fav-star { float: right; color: var(--g200); cursor: pointer; font-size: 13px; transition: color .12s; }
+    .fav-star.on { color: var(--orange); }
+    .fav-star:hover { color: var(--peach); }
+    .empty-list { padding: 30px 14px; text-align: center; color: var(--g500); font-size: 12px; }
+
+    /* DETAIL */
+    .detail-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .detail-scroll { flex: 1; overflow-y: auto; padding: 22px; }
+    .detail-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--g500); text-align: center; gap: 10px; }
+    .detail-empty-icon { font-size: 44px; opacity: .3; }
+    .d-badge { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; padding: 3px 8px; border-radius: 3px; background: rgba(248,90,0,.1); color: var(--orange); margin-bottom: 10px; }
+    .d-title { font-size: 20px; font-weight: 700; line-height: 1.3; margin-bottom: 10px; }
+    .d-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; font-size: 11px; color: var(--g500); flex-wrap: wrap; }
+    .rel-score { background: var(--orange); color: #fff; font-weight: 700; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .d-summary { font-size: 14px; line-height: 1.7; color: #2c2c2c; margin-bottom: 20px; padding: 14px; background: var(--g100); border-radius: var(--r); border-left: 3px solid var(--orange); }
+    .d-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* ARTIKEL-GENERATOR */
+    .art-result { padding: 0 22px 22px; }
+    .art-result h1 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+    .art-result h2 { font-size: 13px; color: var(--g500); font-weight: 400; margin-bottom: 16px; }
+    .art-result h3 { font-size: 15px; font-weight: 700; margin: 18px 0 6px; }
+    .art-result p { font-size: 13px; line-height: 1.7; color: #2c2c2c; margin-bottom: 10px; }
+    .meta-box { background: rgba(248,90,0,.06); border: 1px solid var(--peach); border-radius: var(--r); padding: 9px 12px; font-size: 12px; margin-bottom: 18px; }
+    .sources-list { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--g200); font-size: 11px; color: var(--g500); }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 10px; width: 720px; max-width: 96vw; max-height: 88vh; display: flex; flex-direction: column; box-shadow: var(--shadow); }
+    .modal-header { padding: 18px 20px 14px; border-bottom: 1px solid var(--g200); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .modal-title { font-size: 16px; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--g500); line-height: 1; padding: 2px 6px; }
+    .modal-close:hover { color: var(--dark); }
+    .modal-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--g200); flex-shrink: 0; }
+    .m-tab { padding: 10px 18px; border: none; background: none; cursor: pointer; font-size: 13px; color: var(--g500); font-weight: 500; border-bottom: 2px solid transparent; }
+    .m-tab.active { color: var(--orange); border-bottom-color: var(--orange); font-weight: 700; }
+    .modal-body { flex: 1; overflow-y: auto; padding: 18px 20px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* THEMEN-EDITOR */
+    .topic-row { display: flex; align-items: center; gap: 8px; padding: 10px; background: var(--g100); border-radius: var(--r); margin-bottom: 8px; }
+    .topic-color { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(0,0,0,.1); cursor: pointer; }
+    .topic-name { flex: 1; font-size: 13px; font-weight: 600; }
+    .topic-kw { flex: 2; font-size: 11px; color: var(--g500); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .topic-toggle { flex-shrink: 0; }
+    .toggle { position: relative; display: inline-block; width: 36px; height: 20px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: var(--g200); border-radius: 20px; cursor: pointer; transition: .2s; }
+    .toggle-slider:before { content:''; position: absolute; height: 14px; width: 14px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .2s; }
+    .toggle input:checked + .toggle-slider { background: var(--orange); }
+    .toggle input:checked + .toggle-slider:before { transform: translateX(16px); }
+
+    /* TOPIC EDIT FORM */
+    .form-row { margin-bottom: 14px; }
+    .form-label { font-size: 11px; font-weight: 600; color: var(--g500); text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 5px; }
+    .form-input { width: 100%; padding: 8px 10px; border: 1px solid var(--g200); border-radius: var(--r); font-size: 13px; color: var(--dark); background: var(--white); }
+    .form-input:focus { outline: none; border-color: var(--orange); }
+    .form-hint { font-size: 11px; color: var(--g500); margin-top: 3px; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* QUELLEN */
+    .source-row { padding: 10px 12px; border: 1px solid var(--g200); border-radius: var(--r); margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+    .source-row.paid { border-left: 3px solid var(--orange); }
+    .src-badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; flex-shrink: 0; }
+    .src-badge.free { background: rgba(76,175,80,.1); color: #4CAF50; }
+    .src-badge.paid { background: rgba(248,90,0,.1); color: var(--orange); }
+    .src-name { font-size: 12px; font-weight: 600; flex: 1; }
+    .src-region { font-size: 10px; color: var(--g500); }
+    .src-cred { font-size: 10px; }
+    .cred-ok { color: #4CAF50; }
+    .cred-miss { color: var(--g500); }
+
+    /* SPINNER */
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .spinner-dark { border-color: var(--g200); border-top-color: var(--orange); }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 20px; right: 20px; background: var(--dark); color: #fff; padding: 10px 18px; border-radius: var(--r); font-size: 12px; box-shadow: var(--shadow); opacity: 0; transition: opacity .3s; z-index: 200; }
+    .toast.show { opacity: 1; }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--g200); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--peach); }
+
+    /* REGION FILTER */
+    .region-pills { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 10px 4px; }
+    .region-pill { font-size: 10px; padding: 3px 8px; border-radius: 10px; border: 1px solid var(--g200); cursor: pointer; background: var(--white); color: var(--g500); }
+    .region-pill.active { background: var(--orange); color: #fff; border-color: var(--orange); }
+
+    .section-divider { border: none; border-top: 1px solid var(--g200); margin: 14px 0; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <span class="logo-mark">AUTODOC</span>
+    <div>
+      <div class="logo-text">Info Agent</div>
+      <div class="logo-sub" id="status-text">Wird geladen...</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="status-pill">
+      <div class="dot"></div>
+      <span id="article-count">0 Artikel heute</span>
+    </div>
+    <select class="lang-select" id="lang-select" onchange="changeLanguage(this.value)">
+      <option value="de">🇩🇪 Deutsch</option>
+      <option value="en">🇬🇧 English</option>
+      <option value="uk">🇺🇦 Українська</option>
+      <option value="ru">🇷🇺 Русский</option>
+    </select>
+    <button class="btn btn-ghost" onclick="openSettings()">⚙ <span data-t="settings">Einstellungen</span></button>
+    <button class="btn btn-ghost" onclick="refreshFeeds()" id="refresh-btn">↻ <span data-t="refresh">Aktualisieren</span></button>
+    <button class="btn btn-ghost" onclick="showPrognosis()" style="border:1px solid var(--peach);color:var(--peach)">🔮 Prognose</button>
+    <button class="btn btn-primary" onclick="showGenerator()">✍ <span data-t="create_article">Artikel erstellen</span></button>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside>
+    <!-- Themen -->
+    <div class="sb-section">
+      <div class="sb-label" style="display:flex;justify-content:space-between;align-items:center">
+        <span data-t="topics">Themen</span>
+        <button onclick="openSettingsOnTab('tab-topics')" title="Themen bearbeiten"
+          style="background:transparent;border:1px solid var(--g200);color:var(--g500);border-radius:4px;padding:1px 6px;cursor:pointer;font-size:10px;line-height:1.6">✏</button>
+      </div>
+      <div id="topic-filters"></div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- Kategorien -->
+    <div class="sb-section">
+      <div class="sb-label" data-t="categories">Kategorien</div>
+      <button class="filter-btn active" onclick="filterCat('all', this)" id="cat-all">
+        <span class="f-dot" style="background:var(--orange)"></span>
+        <span data-t="all">Alle</span>
+        <span class="f-count" id="cnt-all">0</span>
+      </button>
+      <button class="filter-btn" onclick="filterScope('GLOBAL', this)" id="cat-general">
+        <span class="f-dot" style="background:#607D8B"></span>
+        <span data-t="cat_general">Allgemein</span>
+        <span class="f-count" id="cnt-general">–</span>
+      </button>
+      <button class="filter-btn" onclick="filterScope('REGIONAL', this)" id="cat-regional">
+        <span class="f-dot" style="background:#4CAF50"></span>
+        <span data-t="cat_regional">Regional</span>
+        <span class="f-count" id="cnt-regional">–</span>
+      </button>
+      <div id="cat-filters"></div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- Relevanz -->
+    <div class="relevance-control">
+      <div class="relevance-label">
+        <span data-t="relevance_min">Mind. Relevanz</span>
+        <span id="rel-value" style="color:var(--orange);font-weight:700">1</span>
+      </div>
+      <input type="range" min="1" max="10" value="1" id="rel-slider" oninput="onRelevanceChange(this.value)">
+      <div style="font-size:9px;color:var(--g500);margin-top:3px">KI-Note 1–10 · Priorität via Kategorien</div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- Gespeichert -->
+    <div class="sb-section">
+      <div class="sb-label" data-t="saved">Gespeichert</div>
+      <button class="filter-btn" onclick="showFavorites()">
+        <span>★</span>
+        <span data-t="favorites">Favoriten</span>
+        <span class="f-count" id="cnt-favs">0</span>
+      </button>
+      <button class="filter-btn" onclick="showPrognosis()">
+        <span>🔮</span>
+        <span data-t="prognoses">Prognosen</span>
+        <span class="f-count" id="cnt-prognoses">0</span>
+      </button>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- GEDÄCHTNIS -->
+    <div class="sb-section">
+      <div class="sb-label">Gedächtnis</div>
+      <div id="memory-stats" style="font-size:10px;color:var(--g500);line-height:1.9;padding:2px"></div>
+    </div>
+  </aside>
+
+  <!-- ARTIKEL-LISTE -->
+  <div class="list-panel">
+    <div class="list-header">
+      <span class="list-title" data-t="daily_overview">Tagesübersicht</span>
+      <span class="list-date" id="header-date"></span>
+    </div>
+    <!-- Region-Filter -->
+    <div class="region-pills" id="region-pills">
+      <span class="region-pill active" onclick="filterRegion('all',this)">🌍 Alle</span>
+      <span class="region-pill" onclick="filterRegion('DE',this)">🇩🇪 DE</span>
+      <span class="region-pill" onclick="filterRegion('EU',this)">🇪🇺 EU</span>
+      <span class="region-pill" onclick="filterRegion('US',this)">🇺🇸 US</span>
+      <span class="region-pill" onclick="filterRegion('UA',this)">🇺🇦 UA</span>
+      <span class="region-pill" onclick="filterRegion('GLOBAL',this)">🌐 Global</span>
+    </div>
+    <div class="articles-scroll" id="article-list"></div>
+  </div>
+
+  <!-- DETAIL -->
+  <div class="detail-panel">
+    <div class="detail-scroll" id="detail-panel">
+      <div class="detail-empty">
+        <div class="detail-empty-icon">📰</div>
+        <strong data-t="select_article">Artikel auswählen</strong>
+        <span style="font-size:12px;color:var(--g500)" data-t="select_article_hint">Klicke links auf einen Artikel</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EINSTELLUNGS-MODAL -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" data-t="settings_title">Einstellungen</span>
+      <button class="modal-close" onclick="closeModal('settings-modal')">✕</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="m-tab active" onclick="switchTab('tab-topics', this)" data-t="topics">Themen</button>
+      <button class="m-tab" onclick="switchTab('tab-categories', this)">Kategorien</button>
+      <button class="m-tab" onclick="switchTab('tab-sources', this)" data-t="sources">Quellen</button>
+      <button class="m-tab" onclick="switchTab('tab-general', this)" data-t="general">Allgemein</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- TAB: THEMEN -->
+      <div class="tab-panel active" id="tab-topics">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <span style="font-size:12px;color:var(--g500)" data-t="topics_hint">Max. 10 Themen. Klicke zum Bearbeiten.</span>
+          <button class="btn btn-primary btn-sm" onclick="openTopicEditor()">+ <span data-t="add_topic">Thema hinzufügen</span></button>
+        </div>
+        <div id="topics-list"></div>
+      </div>
+
+      <!-- TAB: QUELLEN -->
+      <div class="tab-panel" id="tab-sources">
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-outline btn-sm active" onclick="filterSourceList('all',this)">Alle</button>
+          <button class="btn btn-outline btn-sm" onclick="filterSourceList('free',this)">Kostenlos</button>
+          <button class="btn btn-outline btn-sm" onclick="filterSourceList('paid',this)">Kostenpflichtig</button>
+          <button class="btn btn-outline btn-sm" onclick="filterSourceList('custom',this)">Eigene</button>
+          <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openSourceEditor()">+ Neue Quelle</button>
+        </div>
+        <div id="sources-list">
+          <div style="color:var(--g500);font-size:12px">Laden...</div>
+        </div>
+      </div>
+
+      <!-- TAB: KATEGORIEN -->
+      <div class="tab-panel" id="tab-categories">
+        <div style="background:rgba(248,90,0,.06);border:1px solid var(--peach);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;font-size:12px;line-height:1.6">
+          <strong>So funktioniert Relevanz:</strong><br>
+          Jeder Artikel bekommt eine KI-Bewertung (1–10). Dazu kommt deine Kategorie-Priorität.
+          <br><strong>Effektive Sortierung = 60 % KI-Note + 40 % Kategorie-Priorität</strong><br>
+          <span style="color:var(--g500)">Beispiel: KI-Note 6 + Elektromobilität Priorität 9 → Sortierwert 7,2 (erscheint weiter oben als KI-Note 7 aus Wirtschaft mit Priorität 3).</span>
+        </div>
+        <div id="categories-list" style="margin-top:4px"></div>
+        <button class="btn btn-primary" style="margin-top:16px;width:100%" onclick="saveCategorySettings()">Prioritäten speichern & neu laden</button>
+      </div>
+
+      <!-- TAB: ALLGEMEIN -->
+      <div class="tab-panel" id="tab-general">
+        <div class="form-row">
+          <label class="form-label" data-t="api_key">Claude API-Key</label>
+          <input class="form-input" type="password" id="s-api-key" placeholder="sk-ant-...">
+          <div class="form-hint"><a href="https://console.anthropic.com" target="_blank" style="color:var(--orange)">console.anthropic.com</a> → API Keys → Create Key</div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-row">
+            <label class="form-label" data-t="refresh_time">Tägliche Aktualisierung (Uhr)</label>
+            <input class="form-input" type="number" id="s-refresh-hour" min="0" max="23" value="7">
+          </div>
+          <div class="form-row">
+            <label class="form-label" data-t="articles_per_feed">Artikel pro Quelle</label>
+            <input class="form-input" type="number" id="s-articles-per-feed" min="5" max="30" value="10">
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label" data-t="ui_language">Sprache der Benutzeroberfläche</label>
+          <select class="form-input" id="s-language">
+            <option value="de">Deutsch</option>
+            <option value="en">English</option>
+            <option value="uk">Українська</option>
+            <option value="ru">Русский</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label" data-t="relevance_default">Standard-Mindest-Relevanz</label>
+          <input class="form-input" type="range" id="s-relevance-min" min="1" max="10" value="1" oninput="document.getElementById('s-rel-val').textContent=this.value">
+          <span id="s-rel-val" style="font-size:12px;color:var(--orange);font-weight:700">1</span>
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()"><span data-t="save">Speichern</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- THEMEN-EDITOR MODAL -->
+<div class="modal-overlay" id="topic-modal">
+  <div class="modal" style="width:480px">
+    <div class="modal-header">
+      <span class="modal-title" id="topic-modal-title">Thema bearbeiten</span>
+      <button class="modal-close" onclick="closeModal('topic-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="t-id">
+      <div class="form-row">
+        <label class="form-label">Name</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="color" id="t-color" value="#F85A00" style="width:36px;height:36px;border:none;cursor:pointer;background:none;padding:0">
+          <input class="form-input" id="t-name" placeholder="z.B. Elektromobilität">
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Schlüsselwörter (kommagetrennt)</label>
+        <textarea class="form-input" id="t-keywords" rows="3" placeholder="elektro, EV, batterie, electric, hybrid, charging"></textarea>
+        <div class="form-hint">Artikel die eines dieser Wörter enthalten, werden diesem Thema zugeordnet.</div>
+      </div>
+      <div class="form-row" style="background:var(--g100);border-radius:var(--r);padding:10px 12px;margin-top:2px">
+        <label class="form-label" style="margin-bottom:8px;font-size:11px;color:var(--g500);text-transform:uppercase;letter-spacing:.5px">Übersetzungen (optional)</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div>
+            <div style="font-size:10px;color:var(--g400);margin-bottom:3px">🇬🇧 English</div>
+            <input class="form-input" id="t-name-en" placeholder="z.B. Electric Mobility" style="font-size:12px;padding:5px 8px">
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--g400);margin-bottom:3px">🇺🇦 Українська</div>
+            <input class="form-input" id="t-name-uk" placeholder="z.B. Електромобільність" style="font-size:12px;padding:5px 8px">
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--g400);margin-bottom:3px">🇷🇺 Русский</div>
+            <input class="form-input" id="t-name-ru" placeholder="z.B. Электромобильность" style="font-size:12px;padding:5px 8px">
+          </div>
+        </div>
+        <div class="form-hint" style="margin-top:6px">Leer lassen = Originalname wird immer angezeigt.</div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-row">
+          <label class="form-label">Mindest-Relevanz</label>
+          <input class="form-input" type="number" id="t-rel-min" min="1" max="10" value="1">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Aktiv</label>
+          <label class="toggle" style="margin-top:8px">
+            <input type="checkbox" id="t-active" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:space-between">
+        <button class="btn btn-danger btn-sm" id="t-delete-btn" onclick="deleteTopic()" style="display:none">Löschen</button>
+        <div style="display:flex;gap:8px;margin-left:auto">
+          <button class="btn btn-outline" onclick="closeModal('topic-modal')">Abbrechen</button>
+          <button class="btn btn-primary" onclick="saveTopic()">Speichern</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREDENTIALS MODAL -->
+<div class="modal-overlay" id="cred-modal">
+  <div class="modal" style="width:500px">
+    <div class="modal-header">
+      <span class="modal-title" id="cred-modal-title">Zugang konfigurieren</span>
+      <button class="modal-close" onclick="closeModal('cred-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="c-source-id">
+      <div id="cred-auth-type-info" style="font-size:12px;color:var(--g500);margin-bottom:14px;padding:10px;background:var(--g100);border-radius:var(--r)"></div>
+
+      <div class="form-row" id="c-sub-rss-row">
+        <label class="form-label">Abonnenten-RSS-URL (empfohlen)</label>
+        <input class="form-input" id="c-sub-rss" placeholder="https://www.quelle.com/feed?token=...">
+        <div class="form-hint">Viele Bezahlquellen bieten Abonnenten eine spezielle RSS-URL mit Token an. Das ist die zuverlässigste Methode.</div>
+      </div>
+      <hr class="section-divider">
+      <div class="form-row" id="c-api-key-row">
+        <label class="form-label">API-Key</label>
+        <input class="form-input" type="password" id="c-api-key" placeholder="API Key eintragen...">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Benutzername / E-Mail</label>
+        <input class="form-input" id="c-username" placeholder="user@example.com">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Passwort</label>
+        <input class="form-input" type="password" id="c-password" placeholder="Leer lassen um nicht zu ändern">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Cookie (erweitert)</label>
+        <textarea class="form-input" id="c-cookie" rows="2" placeholder="Aus Browser-Entwicklertools kopieren (optional)"></textarea>
+        <div class="form-hint">Aus Browser-DevTools → Application → Cookies kopieren für schwer automatisierbare Seiten.</div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+        <button class="btn btn-outline" onclick="closeModal('cred-modal')">Abbrechen</button>
+        <button class="btn btn-primary" onclick="saveCredentials()">Speichern & Aktivieren</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUELLEN-EDITOR MODAL -->
+<div class="modal-overlay" id="source-modal">
+  <div class="modal" style="width:520px;display:flex;flex-direction:column;max-height:88vh">
+    <div class="modal-header">
+      <span class="modal-title" id="source-modal-title">Neue Quelle hinzufügen</span>
+      <button class="modal-close" onclick="closeModal('source-modal')">✕</button>
+    </div>
+    <div class="modal-body" style="overflow-y:auto;flex:1">
+      <input type="hidden" id="sm-id">
+      <div class="form-row">
+        <label class="form-label">Name der Quelle *</label>
+        <input class="form-input" id="sm-name" placeholder="z.B. Automotive Week Deutschland">
+      </div>
+      <div class="form-row">
+        <label class="form-label">RSS-Feed URL *</label>
+        <input class="form-input" id="sm-url" placeholder="https://www.example.com/rss.xml">
+        <div class="form-hint">⚠️ Nicht die Website-URL eingeben (z.B. www.noz.de) — sondern die <strong>RSS-Feed-URL</strong>. Diese endet meist auf <code>/rss</code>, <code>/feed</code> oder <code>/rss.xml</code> (z.B. www.noz.de/rss). Nach dem Speichern einmal "↻ Aktualisieren" klicken damit Artikel sofort erscheinen.</div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-row">
+          <label class="form-label">Kategorie</label>
+          <select class="form-input" id="sm-category">
+            <option value="Branchennews">Branchennews</option>
+            <option value="Gesetzgebung">Gesetzgebung</option>
+            <option value="Marktdaten">Marktdaten</option>
+            <option value="Elektromobilität">Elektromobilität</option>
+            <option value="Lieferkette">Lieferkette</option>
+            <option value="Rohstoffe">Rohstoffe</option>
+            <option value="Digital & SEO">Digital & SEO</option>
+            <option value="Technologie">Technologie</option>
+            <option value="Nachhaltigkeit">Nachhaltigkeit</option>
+            <option value="Wirtschaft">Wirtschaft</option>
+            <option value="Aftermarket">Aftermarket</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Region</label>
+          <select class="form-input" id="sm-region">
+            <option value="GLOBAL">Allgemein / Global</option>
+            <option value="DE">Regional: Deutschland (DE)</option>
+            <option value="EU">Europa (EU)</option>
+            <option value="GB">UK</option>
+            <option value="FR">Frankreich</option>
+            <option value="IT">Italien</option>
+            <option value="ES">Spanien</option>
+            <option value="PL">Polen</option>
+            <option value="UA">Ukraine</option>
+            <option value="RU">Russland</option>
+            <option value="US">USA</option>
+            <option value="ASIA">Asien</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-row">
+          <label class="form-label">Relevanz für AUTODOC (1-10)</label>
+          <input class="form-input" type="number" id="sm-relevance" min="1" max="10" value="5">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Sprache der Artikel</label>
+          <select class="form-input" id="sm-language">
+            <option value="de">Deutsch</option>
+            <option value="en" selected>Englisch</option>
+            <option value="uk">Ukrainisch</option>
+            <option value="ru">Russisch</option>
+            <option value="fr">Französisch</option>
+            <option value="pl">Polnisch</option>
+          </select>
+        </div>
+      </div>
+      <details id="sm-creds-details" style="margin-top:8px;border:1px solid var(--g200);border-radius:var(--r);padding:0">
+        <summary style="font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;cursor:pointer;padding:8px 12px;list-style:none;display:flex;align-items:center;gap:5px;user-select:none">
+          🔐 Zugangsdaten konfigurieren (optional)
+        </summary>
+        <div style="padding:12px;border-top:1px solid var(--g200)">
+          <div class="form-row">
+            <label class="form-label">Abonnenten-RSS-URL</label>
+            <input class="form-input" id="sm-sub-rss" placeholder="https://www.quelle.com/feed?token=...">
+            <div class="form-hint">Spezielle Feed-URL mit Token für Abonnenten — zuverlässigste Methode.</div>
+          </div>
+          <div class="form-row">
+            <label class="form-label">API-Key</label>
+            <input class="form-input" type="password" id="sm-api-key" placeholder="API Key eintragen...">
+          </div>
+          <div class="form-row-2">
+            <div class="form-row">
+              <label class="form-label">Benutzername / E-Mail</label>
+              <input class="form-input" id="sm-username" placeholder="user@example.com">
+            </div>
+            <div class="form-row">
+              <label class="form-label">Passwort</label>
+              <input class="form-input" type="password" id="sm-password" placeholder="Passwort">
+            </div>
+          </div>
+          <div class="form-row" style="margin-bottom:0">
+            <label class="form-label">Cookie (erweitert)</label>
+            <textarea class="form-input" id="sm-cookie" rows="2" placeholder="Aus Browser-DevTools → Application → Cookies kopieren (optional)"></textarea>
+          </div>
+        </div>
+      </details>
+    </div>
+    <!-- Footer außerhalb des scroll-Bereichs — immer sichtbar -->
+    <div style="padding:12px 20px;border-top:1px solid var(--g200);display:flex;gap:8px;justify-content:space-between;flex-shrink:0;background:var(--white);border-radius:0 0 10px 10px">
+      <button class="btn btn-danger btn-sm" id="sm-delete-btn" onclick="deleteCustomSource()" style="display:none">Löschen</button>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn btn-outline" onclick="closeModal('source-modal')">Abbrechen</button>
+        <button class="btn btn-primary" onclick="saveCustomSource()">Speichern</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Übersetzungen ─────────────────────────────────────────────────────────────
+const T = {
+  de: {
+    settings:'Einstellungen', refresh:'Aktualisieren', create_article:'Artikel erstellen',
+    topics:'Themen', categories:'Kategorien', all:'Alle', relevance_min:'Mind. Relevanz',
+    saved:'Gespeichert', favorites:'Favoriten', daily_overview:'Tagesübersicht',
+    select_article:'Artikel auswählen', select_article_hint:'Klicke links auf einen Artikel',
+    settings_title:'Einstellungen', sources:'Quellen', general:'Allgemein',
+    topics_hint:'Max. 50 Themen. Klicke zum Bearbeiten.', add_topic:'Thema hinzufügen',
+    api_key:'Claude API-Key', refresh_time:'Tägliche Aktualisierung (Uhr)',
+    articles_per_feed:'Artikel pro Quelle', ui_language:'Sprache der Benutzeroberfläche',
+    relevance_default:'Standard-Mindest-Relevanz', save:'Speichern',
+    open_article:'Artikel öffnen', add_to_fav:'Zu Favoriten', rem_from_fav:'Aus Favoriten',
+    create_en:'Artikel erstellen', updating:'Wird aktualisiert...',
+    ai_writing:'KI schreibt Artikel...', copy:'Kopieren', copied:'Kopiert!',
+    no_articles:'Keine Artikel. Auf Aktualisieren klicken.',
+    relevance:'Relevanz', source:'Quelle', date_label:'Datum',
+    configure_access:'Zugang konfigurieren', no_key:'Kein API-Key eingetragen.',
+    prognoses:'Prognosen', fav_pin:'Als Favorit anpinnen', fav_remove:'Favorit entfernen',
+    cat_divider_fav:'★ Favoriten', cat_divider_all:'Alle',
+    articles_today:'Artikel heute', sources_label:'Quellen', paid_label:'kostenpfl.',
+    cat_general:'Allgemein', cat_regional:'Regional',
+  },
+  en: {
+    settings:'Settings', refresh:'Refresh', create_article:'Create Article',
+    topics:'Topics', categories:'Categories', all:'All', relevance_min:'Min. Relevance',
+    saved:'Saved', favorites:'Favorites', daily_overview:'Daily Overview',
+    select_article:'Select an article', select_article_hint:'Click an article on the left',
+    settings_title:'Settings', sources:'Sources', general:'General',
+    topics_hint:'Max. 50 topics. Click to edit.', add_topic:'Add Topic',
+    api_key:'Claude API Key', refresh_time:'Daily Refresh (hour)',
+    articles_per_feed:'Articles per source', ui_language:'Interface Language',
+    relevance_default:'Default min. relevance', save:'Save',
+    open_article:'Open Article', add_to_fav:'Add to Favorites', rem_from_fav:'Remove',
+    create_en:'Create Article', updating:'Updating...', ai_writing:'AI is writing...',
+    copy:'Copy', copied:'Copied!', no_articles:'No articles. Click Refresh.',
+    relevance:'Relevance', source:'Source', date_label:'Date',
+    configure_access:'Configure Access', no_key:'No API key entered.',
+    prognoses:'Forecasts', fav_pin:'Pin as favorite', fav_remove:'Remove favorite',
+    cat_divider_fav:'★ Favorites', cat_divider_all:'All',
+    articles_today:'articles today', sources_label:'sources', paid_label:'paid',
+    cat_general:'General', cat_regional:'Regional',
+  },
+  uk: {
+    settings:'Налаштування', refresh:'Оновити', create_article:'Створити статтю',
+    topics:'Теми', categories:'Категорії', all:'Всі', relevance_min:'Мін. релевантність',
+    saved:'Збережено', favorites:'Улюблені', daily_overview:'Щоденний огляд',
+    select_article:'Оберіть статтю', select_article_hint:'Натисніть на статтю зліва',
+    settings_title:'Налаштування', sources:'Джерела', general:'Загальні',
+    topics_hint:'Макс. 10 тем. Натисніть для редагування.', add_topic:'Додати тему',
+    api_key:'Claude API-ключ', refresh_time:'Щоденне оновлення (година)',
+    articles_per_feed:'Статей з джерела', ui_language:'Мова інтерфейсу',
+    relevance_default:'Мін. релевантність за замовч.', save:'Зберегти',
+    open_article:'Відкрити статтю', add_to_fav:'До улюблених', rem_from_fav:'Видалити',
+    create_en:'Створити статтю', updating:'Оновлення...', ai_writing:'ШІ пише статтю...',
+    copy:'Копіювати', copied:'Скопійовано!', no_articles:'Немає статей. Натисніть Оновити.',
+    relevance:'Релевантність', source:'Джерело', date_label:'Дата',
+    configure_access:'Налаштувати доступ', no_key:'API-ключ не введено.',
+    prognoses:'Прогнози', fav_pin:'Закріпити як обране', fav_remove:'Видалити з обраного',
+    cat_divider_fav:'★ Обране', cat_divider_all:'Всі',
+    articles_today:'статей сьогодні', sources_label:'джерела', paid_label:'платні',
+    cat_general:'Загальне', cat_regional:'Регіональне',
+  },
+  ru: {
+    settings:'Настройки', refresh:'Обновить', create_article:'Создать статью',
+    topics:'Темы', categories:'Категории', all:'Все', relevance_min:'Мин. релевантность',
+    saved:'Сохранённое', favorites:'Избранное', daily_overview:'Обзор дня',
+    select_article:'Выберите статью', select_article_hint:'Нажмите на статью слева',
+    settings_title:'Настройки', sources:'Источники', general:'Основные',
+    topics_hint:'Макс. 10 тем. Нажмите для редактирования.', add_topic:'Добавить тему',
+    api_key:'Claude API-ключ', refresh_time:'Ежедневное обновление (час)',
+    articles_per_feed:'Статей с источника', ui_language:'Язык интерфейса',
+    relevance_default:'Мин. релевантность по умолч.', save:'Сохранить',
+    open_article:'Открыть статью', add_to_fav:'В избранное', rem_from_fav:'Удалить',
+    create_en:'Создать статью', updating:'Обновление...', ai_writing:'ИИ пишет статью...',
+    copy:'Копировать', copied:'Скопировано!', no_articles:'Нет статей. Нажмите Обновить.',
+    relevance:'Релевантность', source:'Источник', date_label:'Дата',
+    configure_access:'Настроить доступ', no_key:'API-ключ не введён.',
+    prognoses:'Прогнозы', fav_pin:'Закрепить как избранное', fav_remove:'Удалить из избранного',
+    cat_divider_fav:'★ Избранное', cat_divider_all:'Все',
+    articles_today:'статей сегодня', sources_label:'источников', paid_label:'платн.',
+    cat_general:'Общее', cat_regional:'Региональное',
+  }
+};
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let lang = 'de';
+let allArticles = [];
+let currentCat = 'all';
+let currentRegion = 'all';
+let currentTopicId = null;
+let currentRelevanceMin = 1;
+let currentArticle = null;
+let topics = [];
+let allSources = [];
+let sourceFilter = 'all';
+
+// ── Übersetzung ───────────────────────────────────────────────────────────────
+function t(key) { return (T[lang] && T[lang][key]) || T.de[key] || key; }
+
+function applyTranslations() {
+  document.querySelectorAll('[data-t]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-t'));
+  });
+  document.getElementById('lang-select').value = lang;
+}
+
+function changeLanguage(l) {
+  lang = l;
+  applyTranslations();
+  // Dynamisch gerenderte Bereiche neu aufbauen
+  loadCategories();
+  loadStatus();
+  renderList(allArticles);       // Kategorienamen in Artikelkarten aktualisieren
+  renderTopicFilters();          // Themen-Filter in Seitenleiste neu rendern
+  if (document.getElementById('tab-topics').classList.contains('active')) renderTopicList();
+  // In settings speichern
+  fetch('/api/settings', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({language: l}) });
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+async function init() {
+  const status = await (await fetch('/api/status')).json();
+  lang = status.language || 'de';
+  currentRelevanceMin = status.relevance_min || 1;
+  document.getElementById('rel-slider').value = currentRelevanceMin;
+  document.getElementById('rel-value').textContent = currentRelevanceMin;
+  applyTranslations();
+
+  const d = new Date();
+  document.getElementById('header-date').textContent =
+    d.toLocaleDateString(lang === 'de' ? 'de-DE' : lang === 'uk' ? 'uk-UA' : lang === 'ru' ? 'ru-RU' : 'en-GB',
+      {day:'2-digit', month:'short'});
+
+  await loadTopics();
+  await loadArticles();
+  await loadStatus();
+  await loadMemoryStats();
+}
+
+async function loadStatus() {
+  const s = await (await fetch('/api/status')).json();
+  document.getElementById('article-count').textContent =
+    `${s.articles_today} ${t('articles_today')}`;
+  document.getElementById('status-text').textContent =
+    `${s.sources_total} ${t('sources_label')} · ${s.paid_sources_active} ${t('paid_label')}${s.has_api_key ? ' · KI ✓' : ''}`;
+  document.getElementById('cnt-favs').textContent = s.favorites;
+}
+
+// ── Artikel laden ──────────────────────────────────────────────────────────────
+async function loadArticles() {
+  let url = `/api/articles?relevance_min=${currentRelevanceMin}`;
+  if (currentCat !== 'all') url += `&category=${encodeURIComponent(currentCat)}`;
+  if (currentRegion !== 'all') url += `&region=${encodeURIComponent(currentRegion)}`;
+  if (currentTopicId) url += `&topic_id=${currentTopicId}`;
+
+  const r = await fetch(url);
+  allArticles = await r.json();
+  renderList(allArticles);
+  await loadCategories();
+}
+
+// ── Kategorie-Favoriten ───────────────────────────────────────────────────────
+let favCategories = new Set(JSON.parse(localStorage.getItem('favCats') || '[]'));
+
+function saveFavCats() {
+  localStorage.setItem('favCats', JSON.stringify([...favCategories]));
+}
+
+function toggleCatFav(e, category) {
+  e.stopPropagation();
+  if (favCategories.has(category)) {
+    favCategories.delete(category);
+  } else {
+    favCategories.add(category);
+  }
+  saveFavCats();
+  loadCategories();
+}
+
+// Übersetzungstabelle für Themenbezeichnungen (Schlüssel = Deutsch)
+const TOPIC_LABELS = {
+  en: {
+    'Gesetzgebung & Recht':  'Legislation & Law',
+    'Technische Normen':     'Technical Standards',
+    'Marktdaten & Zahlen':   'Market Data & Figures',
+    'Branchennews':          'Industry News',
+    'Elektromobilität':      'Electric Mobility',
+    'Lieferkette':           'Supply Chain',
+    'Rohstoffe & Preise':    'Raw Materials & Prices',
+    'Wettbewerber':          'Competitors',
+    'Digital & SEO':         'Digital & SEO',
+    'Nachhaltigkeit':        'Sustainability',
+  },
+  uk: {
+    'Gesetzgebung & Recht':  'Законодавство та право',
+    'Technische Normen':     'Технічні норми',
+    'Marktdaten & Zahlen':   'Ринкові дані та цифри',
+    'Branchennews':          'Новини галузі',
+    'Elektromobilität':      'Електромобільність',
+    'Lieferkette':           'Ланцюг поставок',
+    'Rohstoffe & Preise':    'Сировина та ціни',
+    'Wettbewerber':          'Конкуренти',
+    'Digital & SEO':         'Digital & SEO',
+    'Nachhaltigkeit':        'Сталий розвиток',
+  },
+  ru: {
+    'Gesetzgebung & Recht':  'Законодательство и право',
+    'Technische Normen':     'Технические нормы',
+    'Marktdaten & Zahlen':   'Рыночные данные и цифры',
+    'Branchennews':          'Новости отрасли',
+    'Elektromobilität':      'Электромобильность',
+    'Lieferkette':           'Цепочка поставок',
+    'Rohstoffe & Preise':    'Сырьё и цены',
+    'Wettbewerber':          'Конкуренты',
+    'Digital & SEO':         'Digital & SEO',
+    'Nachhaltigkeit':        'Устойчивость',
+  }
+};
+
+// Übersetzungstabelle für Kategorienamen (Schlüssel = Deutsch, gespeichert in DB)
+const CAT_LABELS = {
+  en: {
+    'Gesetzgebung':'Legislation','Technische Daten':'Technical Data',
+    'Branchennews':'Industry News','Marktdaten':'Market Data',
+    'Wirtschaft':'Economy','Nachhaltigkeit':'Sustainability',
+    'Aftermarket':'Aftermarket','Elektromobilität':'Electric Mobility',
+    'Technologie':'Technology','Digital & SEO':'Digital & SEO',
+    'Lieferkette':'Supply Chain','Rohstoffe':'Raw Materials',
+  },
+  uk: {
+    'Gesetzgebung':'Законодавство','Technische Daten':'Технічні дані',
+    'Branchennews':'Новини галузі','Marktdaten':'Ринкові дані',
+    'Wirtschaft':'Економіка','Nachhaltigkeit':'Стійкість',
+    'Aftermarket':'Aftermarket','Elektromobilität':'Електромобільність',
+    'Technologie':'Технологія','Digital & SEO':'Digital & SEO',
+    'Lieferkette':'Ланцюг поставок','Rohstoffe':'Сировина',
+  },
+  ru: {
+    'Gesetzgebung':'Законодательство','Technische Daten':'Технические данные',
+    'Branchennews':'Новости отрасли','Marktdaten':'Данные рынка',
+    'Wirtschaft':'Экономика','Nachhaltigkeit':'Устойчивость',
+    'Aftermarket':'Автозапчасти','Elektromobilität':'Электромобильность',
+    'Technologie':'Технологии','Digital & SEO':'Digital & SEO',
+    'Lieferkette':'Цепочка поставок','Rohstoffe':'Сырьё',
+  }
+};
+
+function catLabel(name) {
+  if (lang === 'de') return name;
+  return (CAT_LABELS[lang] && CAT_LABELS[lang][name]) || name;
+}
+
+function topicLabel(tp) {
+  if (lang === 'de') return tp.name;
+  // 1. Eingebaute Übersetzungstabelle (deckt die Standard-Themen ab)
+  const builtIn = TOPIC_LABELS[lang] && TOPIC_LABELS[lang][tp.name];
+  if (builtIn) return builtIn;
+  // 2. Manuell im Editor eingetragene Übersetzung
+  const manual = tp['name_' + lang];
+  if (manual && manual.trim()) return manual.trim();
+  // 3. Original-Name als Fallback
+  return tp.name;
+}
+
+async function loadCategories() {
+  const r = await fetch('/api/categories');
+  const cats = await r.json();
+  const total = allArticles.length;
+  document.getElementById('cnt-all').textContent = total;
+  document.getElementById('cnt-general').textContent = allArticles.filter(a => a.region === 'GLOBAL').length;
+  document.getElementById('cnt-regional').textContent = allArticles.filter(a => a.region !== 'GLOBAL').length;
+
+  const container = document.getElementById('cat-filters');
+  const catColors = {
+    'Gesetzgebung':'#2196F3','Technische Daten':'#9C27B0','Marktdaten':'#4CAF50',
+    'Branchennews':'#FF9800','Wirtschaft':'#607D8B','Elektromobilität':'#00BCD4',
+    'Lieferkette':'#795548','Rohstoffe':'#FF5722','Aftermarket':'#E91E63',
+    'Digital & SEO':'#009688','Nachhaltigkeit':'#8BC34A','Technologie':'#3F51B5'
+  };
+
+  // Favoriten oben, Rest darunter
+  const favs = cats.filter(c => favCategories.has(c.category));
+  const rest = cats.filter(c => !favCategories.has(c.category));
+
+  function renderCatBtn(c) {
+    const isFav = favCategories.has(c.category);
+    const safeCat = c.category.replace(/'/g, "\\'");
+    return `
+    <button class="filter-btn${currentCat===c.category?' active':''}${isFav?' fav-cat':''}"
+            onclick="filterCat('${safeCat}',this)">
+      <span class="f-dot" style="background:${catColors[c.category]||CAT_COLOR_MAP[c.category]||'#888'}"></span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${catLabel(c.category)}</span>
+      <span class="f-count">${c.count}</span>
+      <button class="cat-fav-btn${isFav?' on':''}" onclick="toggleCatFav(event,'${safeCat}')" title="${isFav?t('fav_remove'):t('fav_pin')}">
+        ${isFav?'★':'☆'}
+      </button>
+    </button>`;
+  }
+
+  let html = '';
+  if (favs.length > 0) {
+    html += `<div class="cat-fav-divider">${t('cat_divider_fav')}</div>`;
+    html += favs.map(renderCatBtn).join('');
+    if (rest.length > 0) html += `<div class="cat-fav-divider">${t('cat_divider_all')}</div>`;
+  }
+  html += rest.map(renderCatBtn).join('');
+  container.innerHTML = html;
+}
+
+// ── Themen ────────────────────────────────────────────────────────────────────
+async function loadTopics() {
+  const r = await fetch('/api/topics');
+  topics = await r.json();
+  renderTopicFilters();
+  if (document.getElementById('tab-topics').classList.contains('active')) renderTopicList();
+}
+
+function renderTopicFilters() {
+  const container = document.getElementById('topic-filters');
+  container.innerHTML = topics.filter(t => t.active).map(tp => `
+    <button class="filter-btn${currentTopicId==tp.id?' active':''}"
+            onclick="filterTopic(${tp.id},this)">
+      <span class="f-dot" style="background:${tp.color}"></span>
+      ${topicLabel(tp)}
+    </button>`).join('');
+}
+
+function renderTopicList() {
+  const container = document.getElementById('topics-list');
+  container.innerHTML = topics.map(tp => `
+    <div class="topic-row" onclick="openTopicEditor(${tp.id})" style="cursor:pointer" title="Klicken zum Bearbeiten">
+      <span class="topic-color" style="background:${tp.color}"></span>
+      <span class="topic-name">${topicLabel(tp)}</span>
+      <span class="topic-kw">${tp.keywords.split(',').slice(0,3).join(', ')}...</span>
+      <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openTopicEditor(${tp.id})" style="flex-shrink:0;font-size:10px">✏</button>
+      <label class="toggle topic-toggle" onclick="event.stopPropagation()">
+        <input type="checkbox" ${tp.active?'checked':''} onchange="toggleTopic(${tp.id},this.checked)">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>`).join('') +
+    (topics.length < 50 ? `
+    <button class="btn btn-outline" style="width:100%;margin-top:8px" onclick="openTopicEditor()">
+      + ${t('add_topic')}
+    </button>` : '');
+}
+
+async function toggleTopic(id, active) {
+  const topic = topics.find(t => t.id === id);
+  if (!topic) return;
+  await fetch(`/api/topics/${id}`, {
+    method:'PUT', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({...topic, active: active ? 1 : 0})
+  });
+  await loadTopics();
+}
+
+function openTopicEditor(id) {
+  const tp = id ? topics.find(t => t.id === id) : null;
+  document.getElementById('topic-modal-title').textContent = tp ? 'Thema bearbeiten' : 'Neues Thema';
+  document.getElementById('t-id').value = tp ? tp.id : '';
+  document.getElementById('t-name').value = tp ? tp.name : '';
+  document.getElementById('t-keywords').value = tp ? tp.keywords : '';
+  document.getElementById('t-color').value = tp ? tp.color : '#F85A00';
+  document.getElementById('t-rel-min').value = tp ? tp.relevance_min : 1;
+  document.getElementById('t-active').checked = tp ? !!tp.active : true;
+  document.getElementById('t-name-en').value = tp ? (tp.name_en || '') : '';
+  document.getElementById('t-name-uk').value = tp ? (tp.name_uk || '') : '';
+  document.getElementById('t-name-ru').value = tp ? (tp.name_ru || '') : '';
+  document.getElementById('t-delete-btn').style.display = tp ? 'block' : 'none';
+  document.getElementById('topic-modal').classList.add('open');
+}
+
+async function saveTopic() {
+  const id = document.getElementById('t-id').value;
+  const data = {
+    name: document.getElementById('t-name').value,
+    keywords: document.getElementById('t-keywords').value,
+    color: document.getElementById('t-color').value,
+    relevance_min: parseInt(document.getElementById('t-rel-min').value),
+    active: document.getElementById('t-active').checked ? 1 : 0,
+    name_en: document.getElementById('t-name-en').value.trim(),
+    name_uk: document.getElementById('t-name-uk').value.trim(),
+    name_ru: document.getElementById('t-name-ru').value.trim(),
+  };
+  if (!data.name) return showToast('Bitte einen Namen eingeben.');
+  if (id) {
+    await fetch(`/api/topics/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+  } else {
+    const r = await fetch('/api/topics', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    const res = await r.json();
+    if (res.error) { showToast(res.error); return; }
+  }
+  closeModal('topic-modal');
+  await loadTopics();
+  showToast('Thema gespeichert.');
+}
+
+async function deleteTopic() {
+  const id = document.getElementById('t-id').value;
+  if (!id) return;
+  if (!confirm('Thema löschen?')) return;
+  await fetch(`/api/topics/${id}`, {method:'DELETE'});
+  closeModal('topic-modal');
+  await loadTopics();
+  showToast('Thema gelöscht.');
+}
+
+// ── Filter ────────────────────────────────────────────────────────────────────
+function filterCat(cat, btn) {
+  currentCat = cat;
+  currentTopicId = null;
+  currentRegion = 'all';
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.region-pill').forEach(p => p.classList.remove('active'));
+  document.querySelector('.region-pill')?.classList.add('active'); // "Alle" pill aktiv
+  btn.classList.add('active');
+  loadArticles();
+}
+
+function filterScope(scope, btn) {
+  // "Allgemein" = GLOBAL, "Regional" = alle nicht-globalen
+  currentRegion = scope;
+  currentCat = 'all';
+  currentTopicId = null;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.region-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  loadArticles();
+}
+
+function filterTopic(id, btn) {
+  currentTopicId = currentTopicId === id ? null : id;
+  currentCat = 'all';
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (currentTopicId) btn.classList.add('active');
+  loadArticles();
+}
+
+function filterRegion(region, pill) {
+  currentRegion = region;
+  document.querySelectorAll('.region-pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  loadArticles();
+}
+
+function onRelevanceChange(val) {
+  currentRelevanceMin = parseInt(val);
+  document.getElementById('rel-value').textContent = val;
+  loadArticles();
+}
+
+// ── Artikel rendern ────────────────────────────────────────────────────────────
+function renderList(articles) {
+  const container = document.getElementById('article-list');
+  if (!articles.length) {
+    container.innerHTML = `<div class="empty-list">${t('no_articles')}<br>
+      <button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="refreshFeeds()">↻ ${t('refresh')}</button></div>`;
+    return;
+  }
+  container.innerHTML = articles.map(a => {
+    const isCustom = a.source_id && String(a.source_id).startsWith('custom_');
+    const customBadge = isCustom
+      ? `<span style="font-size:9px;font-weight:700;color:#7c4dff;background:rgba(103,58,183,.1);padding:1px 5px;border-radius:3px;letter-spacing:.3px">EIGEN</span>`
+      : '';
+    return `
+    <div class="article-card${currentArticle?.id===a.id?' active':''}" onclick="showDetail(${a.id})" id="card-${a.id}">
+      <div class="card-meta">
+        <span class="card-cat" style="background:${catBg(a.category)};color:${catColor(a.category)}">${catLabel(a.category)}</span>
+        ${customBadge}
+        <span class="card-region">${a.region}</span>
+        <div class="rel-bar">${Array.from({length:10},(_,i)=>`<div class="rel-pip${i<a.relevance?' on':''}"></div>`).join('')}</div>
+      </div>
+      <div>
+        <span class="fav-star${a.is_favorite?' on':''}" onclick="toggleFav(event,${a.id})">★</span>
+        <div class="card-title">${a.title}</div>
+      </div>
+      <div class="card-source">${a.source} · ${a.region}</div>
+    </div>`;
+  }).join('');
+}
+
+const CAT_COLORS = {
+  'Gesetzgebung':'#2196F3','Technische Daten':'#9C27B0','Marktdaten':'#4CAF50',
+  'Branchennews':'#FF9800','Wirtschaft':'#607D8B','Elektromobilität':'#00BCD4',
+  'Lieferkette':'#795548','Rohstoffe':'#FF5722','Aftermarket':'#E91E63',
+  'Digital & SEO':'#009688','Nachhaltigkeit':'#8BC34A','Technologie':'#3F51B5'
+};
+function catColor(c) { return CAT_COLORS[c] || '#888'; }
+function catBg(c) { return (CAT_COLORS[c]||'#888') + '18'; }
+
+function showDetail(id) {
+  currentArticle = allArticles.find(a => a.id === id);
+  if (!currentArticle) return;
+  document.querySelectorAll('.article-card').forEach(c => c.classList.remove('active'));
+  document.getElementById(`card-${id}`)?.classList.add('active');
+  const a = currentArticle;
+  document.getElementById('detail-panel').innerHTML = `
+    <div style="padding:22px">
+      <span class="d-badge">${a.category} · ${a.region}</span>
+      <div class="d-title">${a.title}</div>
+      <div class="d-meta">
+        <span class="rel-score">${t('relevance')} ${a.relevance}/10</span>
+        <span>${a.source}</span>
+        <span>${a.fetched_date}</span>
+        <span style="text-transform:uppercase;font-size:10px;background:var(--g100);padding:2px 6px;border-radius:3px">${a.language}</span>
+      </div>
+      <div class="d-summary">${a.summary || '—'}</div>
+      <div class="d-actions">
+        <a href="${a.url}" target="_blank" class="btn btn-primary">${t('open_article')} ↗</a>
+        <button class="btn btn-outline" onclick="toggleFavDetail(${a.id})">
+          ${a.is_favorite ? '★ '+t('rem_from_fav') : '☆ '+t('add_to_fav')}
+        </button>
+        <button class="btn btn-primary" onclick="generateFromArticle(${a.id})">✍ ${t('create_article')}</button>
+      </div>
+    </div>`;
+}
+
+// ── Favoriten ──────────────────────────────────────────────────────────────────
+async function toggleFav(e, id) {
+  e.stopPropagation();
+  await fetch('/api/toggle_favorite', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
+  const a = allArticles.find(x => x.id === id);
+  if (a) a.is_favorite = a.is_favorite ? 0 : 1;
+  renderList(allArticles);
+  loadStatus();
+}
+
+async function toggleFavDetail(id) {
+  await fetch('/api/toggle_favorite', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
+  const a = allArticles.find(x => x.id === id);
+  if (a) a.is_favorite = a.is_favorite ? 0 : 1;
+  renderList(allArticles);
+  showDetail(id);
+  loadStatus();
+}
+
+async function showFavorites() {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  const r = await fetch('/api/favorites');
+  allArticles = await r.json();
+  renderList(allArticles);
+}
+
+// ── Refresh (mit Polling) ──────────────────────────────────────────────────────
+async function refreshFeeds() {
+  showToast(t('updating'));
+  const btn = document.getElementById('refresh-btn');
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span> <span id="refresh-counter">Feeds werden geladen...</span>`;
+
+  await fetch('/api/refresh', {method:'POST'});
+
+  // Status alle 3 Sekunden prüfen bis fertig (max 120s)
+  let elapsed = 0;
+  const prevCount = allArticles.length;
+  const poll = setInterval(async () => {
+    elapsed += 3;
+    const s = await (await fetch('/api/status')).json();
+    const counter = document.getElementById('refresh-counter');
+    if (counter) {
+      if (s.feed_running) {
+        counter.textContent = `Läuft... ${elapsed}s`;
+      } else {
+        counter.textContent = `Fertig (${s.articles_today} Artikel)`;
+      }
+    }
+    if (!s.feed_running || elapsed >= 120) {
+      clearInterval(poll);
+      await loadArticles();
+      await loadStatus();
+      btn.disabled = false;
+      btn.innerHTML = `↻ <span data-t="refresh">${t('refresh')}</span>`;
+      showToast(`✓ ${s.articles_today} Artikel heute`);
+    }
+  }, 3000);
+}
+
+// ── Artikel-Generator ──────────────────────────────────────────────────────────
+function showGenerator(preselectedIds) {
+  const selectedLabel = preselectedIds
+    ? `<span style="background:rgba(248,90,0,.1);color:var(--orange);padding:3px 8px;border-radius:4px;font-size:11px">1 Artikel vorausgewählt</span>`
+    : `<span style="font-size:12px;color:var(--g500)">Aus den Top-Artikeln des Tages</span>`;
+
+  document.getElementById('detail-panel').innerHTML = `
+    <div style="padding:22px 22px 0">
+      <span class="d-badge">✍ Artikel-Generator</span>
+      <div class="d-title" style="font-size:18px;margin-bottom:4px">Publikationsreifen Artikel erstellen</div>
+      ${selectedLabel}
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px;margin-bottom:16px">
+
+        <div class="form-row">
+          <label class="form-label">Artikelsprache</label>
+          <select class="form-input" id="art-lang">
+            <option value="de">🇩🇪 Deutsch</option>
+            <option value="en" selected>🇬🇧 English</option>
+            <option value="uk">🇺🇦 Українська</option>
+            <option value="ru">🇷🇺 Русский</option>
+          </select>
+          <div class="form-hint">Unabhängig von der App-Sprache</div>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Artikel enthält</label>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
+            <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer">
+              <input type="checkbox" id="opt-hero" checked> Hero-Bild (Unsplash)
+            </label>
+            <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer">
+              <input type="checkbox" id="opt-table" checked> Datentabelle
+            </label>
+            <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer">
+              <input type="checkbox" id="opt-keyfacts" checked> Key-Facts-Box
+            </label>
+            <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer">
+              <input type="checkbox" id="opt-imgs" checked> Abschnitts-Bilder
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="gen-btn"
+              onclick="generateArticle(${preselectedIds ? JSON.stringify([preselectedIds]) : 'null'})">
+        ✍ Artikel generieren
+      </button>
+    </div>
+    <div id="article-output" style="padding:0 22px"></div>`;
+}
+
+function generateFromArticle(id) { showGenerator(id); }
+
+async function generateArticle(ids) {
+  const output = document.getElementById('article-output');
+  if (!output) return;
+  const artLang = document.getElementById('art-lang')?.value || 'en';
+  const genBtn = document.getElementById('gen-btn');
+  if (genBtn) { genBtn.disabled = true; genBtn.innerHTML = `<span class="spinner"></span> Artikel wird generiert...`; }
+
+  output.innerHTML = `
+    <div style="padding:24px 0;text-align:center;color:var(--g500)">
+      <span class="spinner spinner-dark" style="width:24px;height:24px;border-width:3px"></span>
+      <div style="margin-top:12px;font-size:13px">KI schreibt und strukturiert den Artikel...<br>
+      <span style="font-size:11px;color:var(--g500)">Das dauert ca. 20-40 Sekunden</span></div>
+    </div>`;
+
+  const body = { article_language: artLang };
+  if (ids) body.article_ids = ids;
+
+  const r = await fetch('/api/generate_article', {
+    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  const data = await r.json();
+
+  if (genBtn) { genBtn.disabled = false; genBtn.textContent = '✍ Neu generieren'; }
+
+  if (data.error) {
+    output.innerHTML = `<div style="padding:16px 0;color:#e53935;font-size:13px">⚠ ${data.error}</div>`;
+    return;
+  }
+
+  // Artikel-Preview rendern
+  const heroImg = document.getElementById('opt-hero')?.checked && data.hero_image_url
+    ? `<div style="width:100%;height:220px;overflow:hidden;border-radius:8px;margin-bottom:20px;margin-top:16px">
+         <img src="${data.hero_image_url}" style="width:100%;height:100%;object-fit:cover" alt="${data.headline}">
+       </div>` : '';
+
+  const keyFacts = document.getElementById('opt-keyfacts')?.checked && data.key_facts?.length
+    ? `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px;background:var(--dark);padding:16px;border-radius:8px">
+         ${data.key_facts.map(kf => `
+           <div style="text-align:center">
+             <div style="font-size:20px">${kf.icon||'📌'}</div>
+             <div style="color:var(--orange);font-weight:800;font-size:1rem;margin:2px 0">${kf.value}</div>
+             <div style="color:var(--peach);font-size:10px;text-transform:uppercase">${kf.label}</div>
+           </div>`).join('')}
+       </div>` : '';
+
+  const pullQuote = data.pull_quote
+    ? `<blockquote style="border-left:4px solid var(--orange);background:rgba(248,90,0,.05);padding:14px 18px;margin:24px 0;font-style:italic;font-size:15px;color:var(--dark)">
+         "${data.pull_quote}"
+       </blockquote>` : '';
+
+  const sectionsHtml = (data.sections||[]).map(s => {
+    const imgEl = document.getElementById('opt-imgs')?.checked && s.image_url
+      ? `<img src="${s.image_url}" style="width:100%;height:180px;object-fit:cover;border-radius:6px;margin-bottom:12px" alt="${s.heading}">`
+      : '';
+    const tableEl = document.getElementById('opt-table')?.checked && s.has_table && s.table
+      ? renderTablePreview(s.table) : '';
+    const paras = (s.content||'').split('\n').filter(p=>p.trim()).map(p=>`<p style="margin-bottom:.8em;font-size:13px;line-height:1.7">${p}</p>`).join('');
+    return `<div style="margin-bottom:28px">
+      ${imgEl}
+      <h3 style="font-size:15px;font-weight:700;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--orange)">${s.heading}</h3>
+      ${paras}
+      ${tableEl}
+    </div>`;
+  }).join('');
+
+  const introParas = (data.intro||'').split('\n').filter(p=>p.trim()).map(p=>`<p style="margin-bottom:.8em;font-size:14px;line-height:1.7">${p}</p>`).join('');
+  const conclusionParas = (data.conclusion||'').split('\n').filter(p=>p.trim()).map(p=>`<p style="margin-bottom:.8em;font-size:13px;line-height:1.7">${p}</p>`).join('');
+
+  const sourcesHtml = (data.sources||[]).map(s =>
+    `<span style="font-size:11px">→ <a href="${s.url||'#'}" target="_blank" style="color:var(--orange)">${s.name||s}</a></span>`
+  ).join('<br>');
+
+  const tagsHtml = (data.tags||[]).map(tag =>
+    `<span style="border:1px solid var(--g200);padding:3px 9px;border-radius:20px;font-size:10px;color:var(--g500)">${tag}</span>`
+  ).join(' ');
+
+  output.innerHTML = `
+    <div style="padding-top:16px">
+
+      <!-- META BOX -->
+      <div style="background:rgba(248,90,0,.06);border:1px solid var(--peach);border-radius:6px;padding:10px 14px;margin-bottom:16px;font-size:11px">
+        <strong>Meta-Description:</strong> ${data.meta_description}<br>
+        <span style="color:var(--g500)">${(data.meta_description||'').length}/155 Zeichen</span>
+      </div>
+
+      <!-- HERO -->
+      ${heroImg}
+
+      <!-- HEADLINE -->
+      <div style="background:var(--dark);color:white;padding:16px;border-radius:6px;margin-bottom:16px">
+        <div style="font-size:11px;color:var(--peach);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">AUTODOC · Industry Intelligence</div>
+        <h2 style="font-size:22px;font-weight:800;line-height:1.2;margin-bottom:6px">${data.headline}</h2>
+        <p style="color:#bbb;font-size:13px">${data.subheadline}</p>
+      </div>
+
+      <!-- KEY FACTS -->
+      ${keyFacts}
+
+      <!-- INTRO -->
+      <div style="font-size:14px;margin-bottom:20px;padding:14px;background:var(--g100);border-radius:6px;border-left:3px solid var(--orange)">
+        ${introParas}
+      </div>
+
+      ${pullQuote}
+
+      <!-- SECTIONS -->
+      ${sectionsHtml}
+
+      <!-- CONCLUSION -->
+      <div style="background:linear-gradient(135deg,rgba(248,90,0,.06),rgba(255,186,150,.08));border-radius:8px;padding:18px;margin-bottom:20px">
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:10px">Fazit / Ausblick</h3>
+        ${conclusionParas}
+      </div>
+
+      <!-- TAGS -->
+      <div style="margin-bottom:20px;display:flex;flex-wrap:wrap;gap:6px">${tagsHtml}</div>
+
+      <!-- SOURCES -->
+      <div style="border-top:1px solid var(--g200);padding-top:16px;margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g500);margin-bottom:8px">Quellen / Sources</div>
+        ${sourcesHtml}
+      </div>
+
+      <!-- ACTIONS -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;padding-bottom:24px">
+        <button class="btn btn-primary" onclick="exportArticle(${data.id})">⬇ Als HTML exportieren</button>
+        <button class="btn btn-primary" onclick="exportArticleDocx(${data.id})" style="background:#2563eb">📄 Als Word exportieren</button>
+        <button class="btn btn-outline" onclick="copyArticleText()">📋 Text kopieren</button>
+        <button class="btn btn-outline" onclick="window.print()">🖨 Drucken</button>
+      </div>
+    </div>`;
+}
+
+function renderTablePreview(tbl) {
+  if (!tbl) return '';
+  const headers = (tbl.headers||[]).map(h => `<th style="padding:9px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.3px">${h}</th>`).join('');
+  const rows = (tbl.rows||[]).map((row, i) =>
+    `<tr style="background:${i%2===0?'white':'#f9f9f9'}">
+      ${row.map(cell => `<td style="padding:9px 12px;font-size:12px;border-bottom:1px solid #eee">${cell}</td>`).join('')}
+    </tr>`
+  ).join('');
+  return `<div style="overflow-x:auto;margin-top:14px;border-radius:6px;border:1px solid var(--g200)">
+    ${tbl.caption ? `<div style="padding:8px 12px;font-size:11px;color:var(--g500);font-style:italic">${tbl.caption}</div>` : ''}
+    <table style="width:100%;border-collapse:collapse">
+      <thead style="background:var(--dark);color:white"><tr>${headers}</tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+async function exportArticle(articleId) {
+  if (!articleId) { showToast('Artikel-ID fehlt. Neu generieren.'); return; }
+  showToast('HTML-Export wird erstellt...');
+  window.location.href = `/api/export_article/${articleId}`;
+}
+
+async function exportArticleDocx(articleId) {
+  if (!articleId) { showToast('Artikel-ID fehlt. Neu generieren.'); return; }
+  showToast('Word-Dokument wird erstellt (mit Bildern)...');
+  try {
+    const resp = await fetch(`/api/export_article_docx/${articleId}`);
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      showToast('Fehler: ' + (err.error || resp.statusText));
+      return;
+    }
+    const blob = await resp.blob();
+    const cd = resp.headers.get('Content-Disposition') || '';
+    const match = cd.match(/filename[^;=\n]*=(?:(['"])([^'"]*)\1|([^;\n]*))/);
+    const filename = (match && (match[2] || match[3])) || `artikel_${articleId}.docx`;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+    showToast('Word-Dokument heruntergeladen.');
+  } catch (e) {
+    showToast('Fehler beim Word-Export: ' + e.message);
+  }
+}
+
+function copyArticleText() {
+  const output = document.getElementById('article-output');
+  if (!output) return;
+  navigator.clipboard.writeText(output.innerText);
+  showToast(t('copied'));
+}
+
+// ── Einstellungen ─────────────────────────────────────────────────────────────
+async function openSettings() {
+  try {
+    const r = await fetch('/api/settings');
+    const s = await r.json();
+    document.getElementById('s-api-key').value = s.claude_api_key || '';
+    document.getElementById('s-refresh-hour').value = s.refresh_hour || 7;
+    document.getElementById('s-articles-per-feed').value = s.articles_per_feed || 10;
+    document.getElementById('s-language').value = s.language || 'de';
+    const relMin = parseInt(s.relevance_min) || 1;
+    document.getElementById('s-relevance-min').value = relMin;
+    document.getElementById('s-rel-val').textContent = relMin;
+  } catch(e) { console.error('Settings load error:', e); }
+  renderTopicList();
+  try { await loadSourcesList(); } catch(e) { console.error('Sources load error:', e); }
+  try { await loadCategorySettings(); } catch(e) { console.error('Categories load error:', e); }
+  document.getElementById('settings-modal').classList.add('open');
+}
+
+async function saveSettings() {
+  const data = {
+    claude_api_key: document.getElementById('s-api-key').value,
+    refresh_hour: parseInt(document.getElementById('s-refresh-hour').value),
+    articles_per_feed: parseInt(document.getElementById('s-articles-per-feed').value),
+    language: document.getElementById('s-language').value,
+    relevance_min: parseInt(document.getElementById('s-relevance-min').value)
+  };
+  await fetch('/api/settings', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+  lang = data.language;
+  currentRelevanceMin = data.relevance_min;
+  document.getElementById('rel-slider').value = data.relevance_min;
+  document.getElementById('rel-value').textContent = data.relevance_min;
+  applyTranslations();
+  closeModal('settings-modal');
+  showToast(t('save') + ' ✓');
+  loadStatus();
+}
+
+// ── Kategorie-Prioritäten ─────────────────────────────────────────────────────
+let categorySettings = [];
+
+const CAT_COLOR_MAP = {
+  'Gesetzgebung':'#2196F3','Gesetzgebung & Recht':'#2196F3',
+  'Technische Normen':'#9C27B0','Marktdaten':'#4CAF50','Marktdaten & Zahlen':'#4CAF50',
+  'Branchennews':'#FF9800','Wirtschaft':'#607D8B','Elektromobilität':'#00BCD4',
+  'Lieferkette':'#795548','Rohstoffe':'#FF5722','Rohstoffe & Preise':'#FF5722',
+  'Aftermarket':'#E91E63','Digital & SEO':'#009688',
+  'Nachhaltigkeit':'#8BC34A','Technologie':'#3F51B5','Wettbewerber':'#607D8B'
+};
+
+async function loadCategorySettings() {
+  try {
+    const r = await fetch('/api/category_settings');
+    categorySettings = await r.json();
+  } catch(e) {
+    categorySettings = [];
+  }
+  renderCategorySettings();
+}
+
+function renderCategorySettings() {
+  const container = document.getElementById('categories-list');
+  if (!container) return;
+  if (!categorySettings.length) {
+    container.innerHTML = `<div style="color:var(--g500);font-size:12px;padding:16px;text-align:center">
+      Noch keine Kategorien gefunden.<br>Feeds aktualisieren um Kategorien zu laden.
+    </div>`;
+    return;
+  }
+  container.innerHTML = categorySettings.map(cs => {
+    const safeId = 'cat_' + cs.category.replace(/[^a-zA-Z0-9]/g, '_');
+    const col = CAT_COLOR_MAP[cs.category] || '#888';
+    const prio = cs.priority || 5;
+    const prioLabel = prio >= 8 ? '🔥 Hoch' : prio >= 5 ? '— Mittel' : '↓ Niedrig';
+    return `
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 10px;background:var(--g100);border-radius:var(--r);margin-bottom:5px">
+      <span style="width:10px;height:10px;border-radius:50%;flex-shrink:0;background:${col}"></span>
+      <span style="flex:1;font-size:13px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cs.category}</span>
+      <span style="font-size:10px;color:var(--g500);width:54px;text-align:right;flex-shrink:0">${prioLabel}</span>
+      <input type="range" min="1" max="10" value="${prio}"
+             id="${safeId}"
+             oninput="this.nextElementSibling.textContent=this.value;this.previousElementSibling.textContent=this.value>=8?'🔥 Hoch':this.value>=5?'— Mittel':'↓ Niedrig'"
+             style="width:90px;accent-color:${col};flex-shrink:0">
+      <span style="font-size:14px;font-weight:800;color:${col};width:16px;text-align:right;flex-shrink:0">${prio}</span>
+    </div>`;
+  }).join('');
+}
+
+async function saveCategorySettings() {
+  const settings = categorySettings.map(cs => {
+    const safeId = 'cat_' + cs.category.replace(/[^a-zA-Z0-9]/g, '_');
+    const el = document.getElementById(safeId);
+    return {
+      category: cs.category,
+      priority: el ? parseInt(el.value) : cs.priority,
+      active: 1
+    };
+  });
+  await fetch('/api/category_settings', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({settings})
+  });
+  showToast('Kategorie-Prioritäten gespeichert ✓');
+  // Kategorien neu laden und Artikel aktualisieren
+  await loadCategorySettings();
+  await loadArticles();
+}
+
+// ── Quellen-Liste ──────────────────────────────────────────────────────────────
+let customSources = [];
+
+async function loadSourcesList() {
+  const r = await fetch('/api/sources');
+  allSources = await r.json();
+  try {
+    const rc = await fetch('/api/custom_sources');
+    customSources = await rc.json();
+  } catch(e) { customSources = []; }
+  renderSourcesList(allSources);
+}
+
+function filterSourceList(type, btn) {
+  sourceFilter = type;
+  document.querySelectorAll('#tab-sources .btn-outline, #tab-sources .btn-primary').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = type === 'all' ? allSources :
+    type === 'free' ? allSources.filter(s => !s.paid && !s.is_custom) :
+    type === 'paid' ? allSources.filter(s => s.paid) :
+    type === 'custom' ? allSources.filter(s => s.is_custom) : allSources;
+  renderSourcesList(filtered);
+}
+
+function renderSourcesList(sources) {
+  const html = sources.map((s, idx) => {
+    // Globalen Index im allSources-Array finden (für sicheres Credential-Lookup)
+    const globalIdx = allSources.indexOf(s);
+    const badge = s.is_custom
+      ? `<span class="src-badge" style="background:rgba(103,58,183,.1);color:#7c4dff">EIGEN</span>`
+      : s.paid ? `<span class="src-badge paid">PAID</span>`
+               : `<span class="src-badge free">FREE</span>`;
+    const actions = s.is_custom
+      ? `<button class="btn btn-outline btn-sm"
+               onclick="openSourceEditor(${s.custom_id})"
+               style="color:#7c4dff;border-color:#7c4dff">✏ Bearbeiten</button>`
+      : s.paid
+      ? `<span class="src-cred ${s.has_credentials?'cred-ok':'cred-miss'}">
+           ${s.has_credentials ? '● Aktiv' : '○ Kein Zugang'}
+         </span>
+         <button class="btn btn-outline btn-sm"
+                 data-src-idx="${globalIdx}"
+                 onclick="openCredentialsByIdx(this)">${t('configure_access')}</button>`
+      : '';
+    return `<div class="source-row${s.paid?' paid':''}${s.is_custom?' paid':''}">
+      ${badge}
+      <div style="flex:1;min-width:0">
+        <div class="src-name">${s.name}</div>
+        <div style="font-size:10px;color:var(--g500)">${s.category} · ${s.region} · REL ${s.relevance}/10</div>
+      </div>
+      ${actions}
+    </div>`;
+  }).join('');
+  document.getElementById('sources-list').innerHTML = html ||
+    `<div style="color:var(--g500);font-size:12px;padding:20px;text-align:center">Keine Quellen in dieser Kategorie.</div>`;
+}
+
+// ── Credentials ───────────────────────────────────────────────────────────────
+function openCredentialsByIdx(btn) {
+  // Daten sicher aus dem globalen allSources-Array holen (kein HTML-Escaping-Problem)
+  const idx = parseInt(btn.dataset.srcIdx);
+  const s = allSources[idx];
+  if (!s) { showToast('Quelle nicht gefunden.'); return; }
+  openCredentials(s.id, s.name, s.auth_type || 'login', s.description || '');
+}
+
+async function openCredentials(sourceId, sourceName, authType, description) {
+  document.getElementById('cred-modal-title').textContent = sourceName;
+  document.getElementById('c-source-id').value = sourceId;
+  document.getElementById('cred-auth-type-info').innerHTML =
+    `<strong>${sourceName}</strong>${description ? ' — ' + description : ''}<br>
+     Auth-Typ: <strong>${authType === 'api_key' ? 'API-Key' : 'Login'}</strong>`;
+  document.getElementById('c-api-key-row').style.display = authType === 'api_key' ? 'block' : 'none';
+
+  const r = await fetch(`/api/credentials/${sourceId}`);
+  const creds = await r.json();
+  document.getElementById('c-sub-rss').value = creds.subscriber_rss || '';
+  document.getElementById('c-api-key').value = '';
+  document.getElementById('c-username').value = creds.username || '';
+  document.getElementById('c-password').value = '';
+  document.getElementById('c-cookie').value = creds.cookie || '';
+
+  closeModal('settings-modal');
+  document.getElementById('cred-modal').classList.add('open');
+}
+
+async function saveCredentials() {
+  const sourceId = document.getElementById('c-source-id').value;
+  const data = {
+    subscriber_rss: document.getElementById('c-sub-rss').value,
+    api_key: document.getElementById('c-api-key').value,
+    username: document.getElementById('c-username').value,
+    password: document.getElementById('c-password').value,
+    cookie: document.getElementById('c-cookie').value,
+    active: true
+  };
+  await fetch(`/api/credentials/${sourceId}`, {
+    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)
+  });
+  closeModal('cred-modal');
+  showToast('Zugangsdaten gespeichert. ✓');
+  loadStatus();
+}
+
+// ── Eigene Quellen CRUD ────────────────────────────────────────────────────────
+async function openSourceEditor(customId) {
+  const existing = customId ? customSources.find(s => s.id === customId) : null;
+  document.getElementById('source-modal-title').textContent = existing ? 'Quelle bearbeiten' : 'Neue Quelle hinzufügen';
+  document.getElementById('sm-id').value = existing ? existing.id : '';
+  document.getElementById('sm-name').value = existing ? existing.name : '';
+  document.getElementById('sm-url').value = existing ? existing.url : '';
+  document.getElementById('sm-category').value = existing ? existing.category : 'Branchennews';
+  document.getElementById('sm-region').value = existing ? existing.region : 'GLOBAL';
+  document.getElementById('sm-relevance').value = existing ? existing.relevance : 5;
+  document.getElementById('sm-language').value = existing ? existing.language : 'en';
+  document.getElementById('sm-delete-btn').style.display = existing ? 'block' : 'none';
+  // Zugangsdaten-Felder (null-safe falls Browser noch alte Version cached)
+  const elSubRss = document.getElementById('sm-sub-rss');
+  const elApiKey = document.getElementById('sm-api-key');
+  const elUsername = document.getElementById('sm-username');
+  const elPassword = document.getElementById('sm-password');
+  const elCookie = document.getElementById('sm-cookie');
+  if (elSubRss) elSubRss.value = existing ? (existing.subscriber_rss || '') : '';
+  if (elApiKey) elApiKey.value = '';
+  if (elUsername) elUsername.value = existing ? (existing.username || '') : '';
+  if (elPassword) elPassword.value = '';
+  if (elCookie) elCookie.value = existing ? (existing.cookie || '') : '';
+  const hasCreds = existing && (existing.subscriber_rss || existing.username || existing.cookie);
+  const elDetails = document.getElementById('sm-creds-details');
+  if (elDetails) { if (hasCreds) elDetails.setAttribute('open', ''); else elDetails.removeAttribute('open'); }
+  closeModal('settings-modal');
+  document.getElementById('source-modal').classList.add('open');
+}
+
+async function saveCustomSource() {
+  try {
+    const id = document.getElementById('sm-id').value;
+    const data = {
+      name: document.getElementById('sm-name').value.trim(),
+      url: document.getElementById('sm-url').value.trim(),
+      category: document.getElementById('sm-category').value,
+      region: document.getElementById('sm-region').value,
+      relevance: parseInt(document.getElementById('sm-relevance').value),
+      subscriber_rss: (document.getElementById('sm-sub-rss')?.value || '').trim(),
+      api_key: (document.getElementById('sm-api-key')?.value || '').trim(),
+      username: (document.getElementById('sm-username')?.value || '').trim(),
+      password: document.getElementById('sm-password')?.value || '',
+      cookie: (document.getElementById('sm-cookie')?.value || '').trim(),
+      language: document.getElementById('sm-language').value,
+      active: 1
+    };
+    if (!data.name || !data.url) { showToast('Name und URL sind Pflichtfelder.'); return; }
+    if (!data.url.startsWith('http')) { showToast('Bitte eine gültige URL eingeben (https://...)'); return; }
+
+    const url = id ? `/api/custom_sources/${id}` : '/api/custom_sources';
+    const method = id ? 'PUT' : 'POST';
+    const r = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    const res = await r.json();
+    if (res.error) { showToast(res.error); return; }
+    closeModal('source-modal');
+    showToast(id ? 'Quelle gespeichert ✓' : 'Quelle hinzugefügt ✓');
+
+    await loadSourcesList();
+
+    document.getElementById('settings-modal').classList.add('open');
+    document.querySelectorAll('#settings-modal .tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('#settings-modal .m-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-sources').classList.add('active');
+    const sourcesTabBtn = document.querySelector('#settings-modal .m-tab[onclick*="tab-sources"]');
+    if (sourcesTabBtn) sourcesTabBtn.classList.add('active');
+    const eigeneBtn = document.querySelector('#tab-sources .btn-outline[onclick*="custom"]');
+    if (eigeneBtn) filterSourceList('custom', eigeneBtn);
+  } catch(err) {
+    alert('Fehler beim Speichern: ' + err.message + '\n\nBitte F12 → Console öffnen und Fehler kopieren.');
+    console.error('saveCustomSource error:', err);
+  }
+}
+
+async function deleteCustomSource() {
+  const id = document.getElementById('sm-id').value;
+  if (!id) return;
+  if (!confirm('Quelle löschen?')) return;
+  await fetch(`/api/custom_sources/${id}`, {method:'DELETE'});
+  closeModal('source-modal');
+  showToast('Quelle gelöscht.');
+  await loadSourcesList();
+  document.getElementById('settings-modal').classList.add('open');
+}
+
+// ── Modal / Tab Utils ──────────────────────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function switchTab(tabId, btn) {
+  document.querySelectorAll('#settings-modal .tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#settings-modal .m-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  btn.classList.add('active');
+  if (tabId === 'tab-topics') renderTopicList();
+  if (tabId === 'tab-sources') loadSourcesList();
+  if (tabId === 'tab-categories') loadCategorySettings();
+}
+
+function openSettingsOnTab(tabId) {
+  openSettings().then(() => {
+    const tabBtn = document.querySelector(`#settings-modal .m-tab[onclick*="${tabId}"]`);
+    if (tabBtn) {
+      // Kurz warten bis Modal offen ist
+      setTimeout(() => switchTab(tabId, tabBtn), 50);
+    }
+  });
+}
+
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+
+// ── Toast ──────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Gedächtnis & Trends ────────────────────────────────────────────────────────
+async function loadMemoryStats() {
+  try {
+    const r = await fetch('/api/memory_stats');
+    const s = await r.json();
+    const el = document.getElementById('memory-stats');
+    if (el) {
+      el.innerHTML = `
+        <div>📰 ${s.total_articles} Artikel</div>
+        <div>🏷 ${s.total_entities} Entitäten</div>
+        <div>🔮 ${s.total_prognoses} Prognosen</div>
+        <div style="color:var(--orange);margin-top:3px">seit ${s.date_from||'—'}</div>`;
+    }
+    document.getElementById('cnt-prognoses').textContent = s.total_prognoses;
+  } catch(e) {}
+}
+
+// ── Prognose-Panel ─────────────────────────────────────────────────────────────
+async function showPrognosis() {
+  // Trending Topics laden für Vorschläge
+  let trends = [];
+  try {
+    const r = await fetch('/api/trends?days=30&limit=20');
+    trends = await r.json();
+  } catch(e) {}
+
+  // Gespeicherte Prognosen laden
+  let savedPrognoses = [];
+  try {
+    const r = await fetch('/api/prognoses');
+    savedPrognoses = await r.json();
+  } catch(e) {}
+
+  const trendChips = trends.slice(0, 15).map(t =>
+    `<span class="trend-chip" onclick="document.getElementById('prog-topic').value='${t.entity}'"
+       style="display:inline-block;padding:4px 10px;margin:3px;border-radius:20px;
+              border:1px solid var(--g200);cursor:pointer;font-size:11px;color:var(--dark);
+              background:white;transition:all .12s"
+       onmouseover="this.style.borderColor='var(--orange)';this.style.color='var(--orange)'"
+       onmouseout="this.style.borderColor='var(--g200)';this.style.color='var(--dark)'">
+      ${t.entity} <span style="color:var(--g500)">${t.total_mentions}×</span>
+    </span>`
+  ).join('');
+
+  const savedHtml = savedPrognoses.length ? `
+    <div style="margin-top:20px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g500);margin-bottom:8px">Gespeicherte Prognosen</div>
+      ${savedPrognoses.map(p => `
+        <div onclick="loadSavedPrognosis(${p.id})"
+             style="padding:10px 12px;border:1px solid var(--g200);border-radius:6px;margin-bottom:6px;cursor:pointer;transition:border-color .12s"
+             onmouseover="this.style.borderColor='var(--orange)'"
+             onmouseout="this.style.borderColor='var(--g200)'">
+          <div style="font-size:12px;font-weight:600">${p.headline||p.topic}</div>
+          <div style="font-size:10px;color:var(--g500);">${p.topic} · ${p.created_date} · Konfidenz ${p.confidence}/10</div>
+        </div>`).join('')}
+    </div>` : '';
+
+  document.getElementById('detail-panel').innerHTML = `
+    <div style="padding:22px">
+      <span class="d-badge" style="background:rgba(103,58,183,.1);color:#7c4dff">🔮 Zukunftsprognose</span>
+      <div class="d-title" style="font-size:18px;margin-bottom:4px">KI-gestützte Trendanalyse</div>
+      <p style="font-size:12px;color:var(--g500);margin-bottom:20px">
+        Das Programm verbindet alle gespeicherten Artikel zu einem Thema und analysiert Ursache-Wirkung-Ketten für eine fundierte Zukunftsprognose.
+      </p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div class="form-row">
+          <label class="form-label">Thema / Stichwort</label>
+          <input class="form-input" id="prog-topic" placeholder="z.B. E20 Kraftstoff, Hormuz, Elektromobilität">
+          <div class="form-hint">Begriff aus den News oder freie Eingabe</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="form-row">
+            <label class="form-label">Zeitraum</label>
+            <select class="form-input" id="prog-days">
+              <option value="14">14 Tage</option>
+              <option value="30" selected>30 Tage</option>
+              <option value="60">60 Tage</option>
+              <option value="90">90 Tage</option>
+              <option value="180">6 Monate</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label">Sprache</label>
+            <select class="form-input" id="prog-lang">
+              <option value="de" ${lang==='de'?'selected':''}>Deutsch</option>
+              <option value="en" ${lang==='en'?'selected':''}>English</option>
+              <option value="uk" ${lang==='uk'?'selected':''}>Українська</option>
+              <option value="ru" ${lang==='ru'?'selected':''}>Русский</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:16px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g500);margin-bottom:8px">
+          Trending Topics (letzte 30 Tage — anklicken)
+        </div>
+        <div>${trendChips || '<span style="font-size:12px;color:var(--g500)">Noch keine Trends. Feeds aktualisieren.</span>'}</div>
+      </div>
+
+      <button class="btn btn-primary" id="prog-btn" onclick="runPrognosis()" style="background:linear-gradient(135deg,#7c4dff,#F85A00)">
+        🔮 Prognose erstellen
+      </button>
+
+      ${savedHtml}
+    </div>
+    <div id="prognosis-output" style="padding:0 22px 22px"></div>`;
+}
+
+async function runPrognosis() {
+  const topic = document.getElementById('prog-topic')?.value?.trim();
+  const days = document.getElementById('prog-days')?.value || 30;
+  const progLang = document.getElementById('prog-lang')?.value || lang;
+
+  if (!topic) { showToast('Bitte ein Thema eingeben.'); return; }
+
+  const btn = document.getElementById('prog-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner"></span> Analysiere ${topic}...`; }
+
+  const output = document.getElementById('prognosis-output');
+  output.innerHTML = `
+    <div style="padding:20px 0;text-align:center;color:var(--g500)">
+      <span class="spinner spinner-dark" style="width:28px;height:28px;border-width:3px"></span>
+      <div style="margin-top:14px;font-size:13px">
+        KI analysiert alle Artikel zu <strong>${topic}</strong>...<br>
+        <span style="font-size:11px">Verbindet Ereignisse · Erkennt Muster · Erstellt Prognose</span>
+      </div>
+    </div>`;
+
+  const r = await fetch('/api/prognosis', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ topic, days: parseInt(days), language: progLang })
+  });
+  const data = await r.json();
+
+  if (btn) { btn.disabled = false; btn.innerHTML = `🔮 Prognose erstellen`; }
+
+  if (data.error) {
+    output.innerHTML = `<div style="color:#e53935;font-size:13px;padding:12px 0">⚠ ${data.error}</div>`;
+    return;
+  }
+
+  renderPrognosisResult(data, topic, days);
+  loadMemoryStats();
+}
+
+async function loadSavedPrognosis(id) {
+  const r = await fetch(`/api/prognoses/${id}`);
+  const data = await r.json();
+  document.getElementById('prognosis-output').scrollIntoView({behavior:'smooth'});
+  renderPrognosisResult(data, data.topic, 30);
+}
+
+function renderPrognosisResult(data, topic, days) {
+  const output = document.getElementById('prognosis-output');
+
+  const confidence = data.confidence || 5;
+  const confColor = confidence >= 7 ? '#4CAF50' : confidence >= 4 ? '#FF9800' : '#e53935';
+  const confLabel = confidence >= 7 ? (lang==='de'?'Hoch':'High') : confidence >= 4 ? (lang==='de'?'Mittel':'Medium') : (lang==='de'?'Niedrig':'Low');
+
+  // Treiber
+  const forcesHtml = (data.driving_forces||[]).map(f => {
+    const col = f.direction==='positiv'||f.direction==='positive' ? '#4CAF50' : f.direction==='negativ'||f.direction==='negative' ? '#e53935' : '#607D8B';
+    const arrow = f.direction==='positiv'||f.direction==='positive' ? '↑' : f.direction==='negativ'||f.direction==='negative' ? '↓' : '→';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--g100);border-radius:4px;margin-bottom:5px">
+      <span style="color:${col};font-weight:700;font-size:14px">${arrow}</span>
+      <div style="flex:1;font-size:12px">${f.force}</div>
+      <span style="font-size:10px;color:${col};font-weight:600;text-transform:uppercase">${f.strength||''}</span>
+    </div>`;
+  }).join('');
+
+  // Szenarien
+  const scenarios = data.scenarios || {};
+  const scenariosHtml = Object.entries(scenarios).map(([key, s]) => {
+    const colors = {base:'#2196F3', bull:'#4CAF50', bear:'#e53935'};
+    return `<div style="border:1px solid ${colors[key]}33;border-radius:6px;padding:12px;flex:1;min-width:140px">
+      <div style="font-size:10px;font-weight:700;color:${colors[key]};text-transform:uppercase;margin-bottom:4px">${s.label||key}</div>
+      <div style="font-size:11px;color:var(--g500);margin-bottom:6px">${s.probability||''}</div>
+      <div style="font-size:12px;line-height:1.5">${s.description||''}</div>
+    </div>`;
+  }).join('');
+
+  // Verbindungsketten
+  const chainsHtml = (data.key_connections||[]).map(c => `
+    <div style="background:var(--g100);border-radius:6px;padding:12px;margin-bottom:8px;border-left:3px solid #7c4dff">
+      <div style="font-size:12px;font-weight:600;color:#7c4dff;margin-bottom:4px">🔗 ${c.chain}</div>
+      <div style="font-size:12px;color:var(--dark)">${c.explanation}</div>
+    </div>`).join('');
+
+  // AUTODOC Impact
+  const impact = data.autodoc_impact || {};
+  const catImpact = (impact.affected_categories||[]).map(cat => {
+    const col = cat.direction==='steigend'||cat.direction==='rising' ? '#4CAF50' : cat.direction==='fallend'||cat.direction==='falling' ? '#e53935' : '#607D8B';
+    const arrow = cat.direction==='steigend'||cat.direction==='rising' ? '↑' : cat.direction==='fallend'||cat.direction==='falling' ? '↓' : '→';
+    return `<div style="display:flex;gap:10px;align-items:start;padding:7px;border-bottom:1px solid var(--g200)">
+      <span style="color:${col};font-weight:700">${arrow}</span>
+      <div><div style="font-size:12px;font-weight:600">${cat.category}</div>
+      <div style="font-size:11px;color:var(--g500)">${cat.impact}</div></div>
+    </div>`;
+  }).join('');
+
+  const actionsHtml = (impact.actions||[]).map(a =>
+    `<div style="padding:6px 0;font-size:12px;border-bottom:1px solid var(--g200)">▶ ${a}</div>`
+  ).join('');
+
+  // Beobachtungssignale
+  const signalsHtml = (data.watch_signals||[]).map(s =>
+    `<div style="padding:5px 0;font-size:12px;display:flex;gap:8px"><span style="color:var(--orange)">👁</span>${s}</div>`
+  ).join('');
+
+  // Verwandte Themen
+  const relatedHtml = (data.related_topics||[]).slice(0,8).map(r =>
+    `<span onclick="document.getElementById('prog-topic').value='${r.entity}'"
+       style="display:inline-block;padding:3px 8px;margin:2px;border-radius:12px;border:1px solid var(--g200);
+              font-size:10px;cursor:pointer;color:var(--g500)">${r.entity} (${r.count})</span>`
+  ).join('');
+
+  output.innerHTML = `
+    <!-- HEADER -->
+    <div style="background:linear-gradient(135deg,var(--dark),#2a1a3e);border-radius:8px;padding:20px;margin-bottom:20px;color:white">
+      <div style="font-size:10px;color:var(--peach);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">
+        🔮 Prognose · ${topic} · ${days} Tage analysiert · ${data.articles_analyzed||0} Artikel
+      </div>
+      <div style="font-size:20px;font-weight:800;line-height:1.3;margin-bottom:10px">${data.headline||topic}</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="background:${confColor};color:white;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">
+          Konfidenz ${confidence}/10 · ${confLabel}
+        </span>
+      </div>
+    </div>
+
+    <!-- AKTUELLE LAGE -->
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g500);margin-bottom:8px">Aktuelle Lage</div>
+      <p style="font-size:13px;line-height:1.7;padding:14px;background:var(--g100);border-radius:6px;border-left:3px solid var(--orange)">${data.current_situation||''}</p>
+    </div>
+
+    <!-- VERBINDUNGSKETTEN -->
+    ${chainsHtml ? `<div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g500);margin-bottom:8px">Ursache-Wirkung-Ketten</div>
+      ${chainsHtml}
+    </div>` : ''}
+
+    <!-- SZENARIEN -->
+    ${scenariosHtml ? `<div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g500);margin-bottom:8px">Szenarien</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${scenariosHtml}</div>
+    </div>` : ''}
+
+    <!-- TREIBER -->
+    ${forcesHtml ? `<div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g500);margin-bottom:8px">Treibende Kräfte</div>
+      ${forcesHtml}
+    </div>` : ''}
+
+    <!-- ZEITLICHE PROGNOSE -->
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g500);margin-bottom:8px">Zeitliche Prognose</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        ${[['3 Monate','prognosis_3m','#2196F3'],['6 Monate','prognosis_6m','#FF9800'],['12 Monate','prognosis_12m','#9C27B0']].map(([label,key,color]) => `
+          <div style="border-top:3px solid ${color};padding:12px;background:var(--g100);border-radius:0 0 6px 6px">
+            <div style="font-size:10px;font-weight:700;color:${color};text-transform:uppercase;margin-bottom:6px">${label}</div>
+            <div style="font-size:12px;line-height:1.6">${data[key]||'—'}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- AUTODOC IMPACT -->
+    <div style="border:2px solid var(--orange);border-radius:8px;padding:16px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--orange);margin-bottom:10px">⚡ AUTODOC Impact</div>
+      <p style="font-size:13px;margin-bottom:12px;line-height:1.6">${impact.summary||''}</p>
+      ${catImpact ? `<div style="margin-bottom:12px">${catImpact}</div>` : ''}
+      ${actionsHtml ? `<div>
+        <div style="font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;margin-bottom:6px">Empfohlene Maßnahmen</div>
+        ${actionsHtml}
+      </div>` : ''}
+    </div>
+
+    <!-- SIGNALE BEOBACHTEN -->
+    ${signalsHtml ? `<div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g500);margin-bottom:8px">Zu beobachtende Signale</div>
+      ${signalsHtml}
+    </div>` : ''}
+
+    <!-- VERWANDTE THEMEN -->
+    ${relatedHtml ? `<div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g500);margin-bottom:6px">Verwandte Themen</div>
+      ${relatedHtml}
+    </div>` : ''}
+
+    <!-- ACTIONS -->
+    <div style="display:flex;gap:8px;padding-top:16px;border-top:1px solid var(--g200)">
+      <button class="btn btn-outline btn-sm" onclick="copyPrognosisText()">📋 Kopieren</button>
+    </div>`;
+}
+
+function copyPrognosisText() {
+  const el = document.getElementById('prognosis-output');
+  if (!el) return;
+  navigator.clipboard.writeText(el.innerText);
+  showToast('Prognose kopiert!');
+}
+
+// ── Start ──────────────────────────────────────────────────────────────────────
+init();
+setInterval(loadStatus, 60000);
+setInterval(loadMemoryStats, 300000); // alle 5 min
+</script>
+</body>
+</html>

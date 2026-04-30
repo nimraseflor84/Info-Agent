@@ -1,0 +1,32 @@
+{
+  "claude_api_key": "",
+  "refresh_hour": 7,
+  "port": 5050,
+  "language": "DE",
+  "max_articles_per_feed": 10,
+  "paid_sources": {
+    "note": "Add paid sources here — fill in the fields and set 'active': true",
+    "sources": [
+      {
+        "name": "KFZ-Betrieb",
+        "url": "",
+        "username": "",
+        "password": "",
+        "active": false
+      },
+      {
+        "name": "SpringerProfessional / AutoBild Pro",
+        "url": "",
+        "username": "",
+        "password": "",
+        "active": false
+      },
+      {
+        "name": "DAT",
+        "url": "",
+        "api_key": "",
+        "active": false
+      }
+    ]
+  }
+}

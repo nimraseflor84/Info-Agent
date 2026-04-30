@@ -5,6 +5,8 @@ config.json
 memory.db
 autodoc.db
 *.db
+*.db-shm
+*.db-wal
 
 # ── Generated exports ─────────────────────────────────────────────────────────
 exports/

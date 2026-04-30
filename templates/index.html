@@ -285,6 +285,13 @@
       <span class="list-title" data-t="daily_overview">Tagesübersicht</span>
       <span class="list-date" id="header-date"></span>
     </div>
+    <!-- Top-Filter -->
+    <div style="display:flex;gap:6px;padding:6px 12px 2px;align-items:center">
+      <span style="font-size:10px;color:var(--g500);font-weight:600;text-transform:uppercase;letter-spacing:.4px">Top</span>
+      <button id="top-btn-5"  class="btn btn-sm" onclick="setTopLimit(5,this)"  style="font-size:11px;padding:2px 10px;background:transparent;border:1px solid var(--g300);color:var(--g600)">5</button>
+      <button id="top-btn-10" class="btn btn-sm" onclick="setTopLimit(10,this)" style="font-size:11px;padding:2px 10px;background:transparent;border:1px solid var(--g300);color:var(--g600)">10</button>
+      <button id="top-btn-all" class="btn btn-sm" onclick="setTopLimit(null,this)" style="font-size:11px;padding:2px 10px;background:var(--orange);border:1px solid var(--orange);color:white">Alle</button>
+    </div>
     <!-- Region-Filter -->
     <div class="region-pills" id="region-pills">
       <span class="region-pill active" onclick="filterRegion('all',this)">🌍 Alle</span>
@@ -295,6 +302,13 @@
       <span class="region-pill" onclick="filterRegion('GLOBAL',this)">🌐 Global</span>
     </div>
     <div class="articles-scroll" id="article-list"></div>
+
+    <!-- Auswahlleiste (erscheint wenn Artikel selektiert) -->
+    <div id="selection-bar" style="display:none;position:sticky;bottom:0;background:var(--dark);color:white;padding:10px 14px;display:none;align-items:center;gap:10px;border-top:2px solid var(--orange);z-index:10">
+      <span id="selection-count" style="font-size:12px;flex:1;color:var(--peach)">0 Artikel ausgewählt</span>
+      <button class="btn btn-sm" onclick="clearSelection()" style="background:transparent;color:#aaa;border:1px solid #444;font-size:11px">✕ Auswahl aufheben</button>
+      <button class="btn btn-primary btn-sm" onclick="showGenerator()" style="font-size:12px">✍ Artikel generieren</button>
+    </div>
   </div>
 
   <!-- DETAIL -->
@@ -713,6 +727,8 @@ let currentArticle = null;
 let topics = [];
 let allSources = [];
 let sourceFilter = 'all';
+let selectedArticleIds = new Set();
+let topLimit = null; // null = alle, 5 = Top 5, 10 = Top 10
 
 // ── Übersetzung ───────────────────────────────────────────────────────────────
 function t(key) { return (T[lang] && T[lang][key]) || T.de[key] || key; }
@@ -1064,6 +1080,22 @@ function filterRegion(region, pill) {
   loadArticles();
 }
 
+function setTopLimit(n, btn) {
+  topLimit = n;
+  // Button-Styling aktualisieren
+  ['top-btn-5','top-btn-10','top-btn-all'].forEach(id => {
+    const b = document.getElementById(id);
+    if (!b) return;
+    b.style.background = 'transparent';
+    b.style.borderColor = 'var(--g300)';
+    b.style.color = 'var(--g600)';
+  });
+  btn.style.background = 'var(--orange)';
+  btn.style.borderColor = 'var(--orange)';
+  btn.style.color = 'white';
+  renderList(allArticles);
+}
+
 function onRelevanceChange(val) {
   currentRelevanceMin = parseInt(val);
   document.getElementById('rel-value').textContent = val;
@@ -1078,18 +1110,24 @@ function renderList(articles) {
       <button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="refreshFeeds()">↻ ${t('refresh')}</button></div>`;
     return;
   }
-  container.innerHTML = articles.map(a => {
+  // Top-Limit anwenden (nach Relevanz sortiert, kommt bereits so vom Backend)
+  const limited = topLimit ? articles.slice(0, topLimit) : articles;
+  container.innerHTML = limited.map(a => {
     const isCustom = a.source_id && String(a.source_id).startsWith('custom_');
     const customBadge = isCustom
       ? `<span style="font-size:9px;font-weight:700;color:#7c4dff;background:rgba(103,58,183,.1);padding:1px 5px;border-radius:3px;letter-spacing:.3px">EIGEN</span>`
       : '';
+    const isSelected = selectedArticleIds.has(a.id);
     return `
-    <div class="article-card${currentArticle?.id===a.id?' active':''}" onclick="showDetail(${a.id})" id="card-${a.id}">
+    <div class="article-card${currentArticle?.id===a.id?' active':''}${isSelected?' selected':''}" onclick="showDetail(${a.id})" id="card-${a.id}" style="${isSelected?'border-left:3px solid var(--orange);background:rgba(248,90,0,.04)':''}">
       <div class="card-meta">
         <span class="card-cat" style="background:${catBg(a.category)};color:${catColor(a.category)}">${catLabel(a.category)}</span>
         ${customBadge}
         <span class="card-region">${a.region}</span>
         <div class="rel-bar">${Array.from({length:10},(_,i)=>`<div class="rel-pip${i<a.relevance?' on':''}"></div>`).join('')}</div>
+        <input type="checkbox" ${isSelected?'checked':''} onclick="toggleSelectArticle(event,${a.id})"
+          title="Für Artikelgenerierung auswählen"
+          style="margin-left:4px;cursor:pointer;accent-color:var(--orange);width:14px;height:14px;flex-shrink:0">
       </div>
       <div>
         <span class="fav-star${a.is_favorite?' on':''}" onclick="toggleFav(event,${a.id})">★</span>
@@ -1197,10 +1235,13 @@ async function refreshFeeds() {
 }
 
 // ── Artikel-Generator ──────────────────────────────────────────────────────────
-function showGenerator(preselectedIds) {
-  const selectedLabel = preselectedIds
-    ? `<span style="background:rgba(248,90,0,.1);color:var(--orange);padding:3px 8px;border-radius:4px;font-size:11px">1 Artikel vorausgewählt</span>`
-    : `<span style="font-size:12px;color:var(--g500)">Aus den Top-Artikeln des Tages</span>`;
+function showGenerator() {
+  const ids = [...selectedArticleIds];
+  const selectedLabel = ids.length > 0
+    ? `<span style="background:rgba(248,90,0,.1);color:var(--orange);padding:3px 8px;border-radius:4px;font-size:11px">
+         ${ids.length} Artikel ausgewählt — <span style="cursor:pointer;text-decoration:underline" onclick="clearSelection();showGenerator()">Auswahl aufheben</span>
+       </span>`
+    : `<span style="font-size:12px;color:var(--g500)">Keine Auswahl — nutzt automatisch die Top-Artikel des Tages</span>`;
 
   document.getElementById('detail-panel').innerHTML = `
     <div style="padding:22px 22px 0">
@@ -1241,19 +1282,55 @@ function showGenerator(preselectedIds) {
       </div>
 
       <button class="btn btn-primary" id="gen-btn"
-              onclick="generateArticle(${preselectedIds ? JSON.stringify([preselectedIds]) : 'null'})">
+              onclick="generateArticle(${ids.length > 0 ? JSON.stringify(ids) : 'null'})">
         ✍ Artikel generieren
       </button>
     </div>
     <div id="article-output" style="padding:0 22px"></div>`;
 }
 
-function generateFromArticle(id) { showGenerator(id); }
+function generateFromArticle(id) {
+  // Einzelartikel direkt zur Auswahl hinzufügen und Generator öffnen
+  selectedArticleIds.add(id);
+  updateSelectionBar();
+  showGenerator();
+}
+
+function toggleSelectArticle(e, id) {
+  e.stopPropagation();
+  if (selectedArticleIds.has(id)) {
+    selectedArticleIds.delete(id);
+  } else {
+    selectedArticleIds.add(id);
+  }
+  updateSelectionBar();
+  renderList(allArticles);
+}
+
+function updateSelectionBar() {
+  const bar = document.getElementById('selection-bar');
+  const count = document.getElementById('selection-count');
+  if (!bar) return;
+  if (selectedArticleIds.size > 0) {
+    bar.style.display = 'flex';
+    count.textContent = `${selectedArticleIds.size} Artikel ausgewählt`;
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+function clearSelection() {
+  selectedArticleIds.clear();
+  updateSelectionBar();
+  renderList(allArticles);
+}
 
 async function generateArticle(ids) {
   const output = document.getElementById('article-output');
   if (!output) return;
   const artLang = document.getElementById('art-lang')?.value || 'en';
+  const conclusionLabel = {de:'Ausblick',en:'Outlook',uk:'Висновок',ru:'Заключение'}[artLang] || 'Outlook';
+  const sourcesLabel    = {de:'Quellen', en:'Sources',uk:'Джерела', ru:'Источники'}[artLang]  || 'Sources';
   const genBtn = document.getElementById('gen-btn');
   if (genBtn) { genBtn.disabled = true; genBtn.innerHTML = `<span class="spinner"></span> Artikel wird generiert...`; }
 
@@ -1360,7 +1437,7 @@ async function generateArticle(ids) {
 
       <!-- CONCLUSION -->
       <div style="background:linear-gradient(135deg,rgba(248,90,0,.06),rgba(255,186,150,.08));border-radius:8px;padding:18px;margin-bottom:20px">
-        <h3 style="font-size:14px;font-weight:700;margin-bottom:10px">Fazit / Ausblick</h3>
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:10px">${conclusionLabel}</h3>
         ${conclusionParas}
       </div>
 
@@ -1369,7 +1446,7 @@ async function generateArticle(ids) {
 
       <!-- SOURCES -->
       <div style="border-top:1px solid var(--g200);padding-top:16px;margin-bottom:20px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g500);margin-bottom:8px">Quellen / Sources</div>
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g500);margin-bottom:8px">${sourcesLabel}</div>
         ${sourcesHtml}
       </div>
 

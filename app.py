@@ -278,8 +278,9 @@ def init_db():
     conn.close()
 
 def get_db():
-    conn = sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect(DB_FILE, check_same_thread=False, timeout=10)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")  # Mehrere gleichzeitige Leser erlauben
     return conn
 
 def get_setting(key, default=""):
@@ -630,18 +631,39 @@ def get_topics():
     conn.close()
     return jsonify([dict(t) for t in topics])
 
+@app.route("/api/topics/dedup", methods=["POST"])
+def dedup_topics():
+    """Einmalige Bereinigung von Duplikaten — wird beim App-Start automatisch aufgerufen."""
+    conn = get_db()
+    deleted = conn.execute("""
+        DELETE FROM user_topics WHERE id NOT IN (
+            SELECT MIN(id) FROM user_topics GROUP BY name
+        )
+    """).rowcount
+    conn.commit()
+    conn.close()
+    return jsonify({"deleted": deleted})
+
 @app.route("/api/topics", methods=["POST"])
 def create_topic():
     conn = get_db()
+    data = request.json
+    new_name = data.get("name", "Neues Thema").strip()
+    # Doppelten Namen verhindern
+    existing = conn.execute(
+        "SELECT id FROM user_topics WHERE LOWER(name) = LOWER(?)", (new_name,)
+    ).fetchone()
+    if existing:
+        conn.close()
+        return jsonify({"error": f"Thema '{new_name}' existiert bereits."}), 400
     count = conn.execute("SELECT COUNT(*) FROM user_topics").fetchone()[0]
     if count >= 50:
         conn.close()
         return jsonify({"error": "Maximum 50 Themen erreicht."}), 400
-    data = request.json
     conn.execute("""
         INSERT INTO user_topics (name, keywords, color, relevance_min, active, sort_order, name_en, name_uk, name_ru)
         VALUES (?, ?, ?, ?, 1, ?, ?, ?, ?)
-    """, (data.get("name", "Neues Thema"), data.get("keywords", ""),
+    """, (new_name, data.get("keywords", ""),
           data.get("color", "#F85A00"), data.get("relevance_min", 1), count,
           data.get("name_en", ""), data.get("name_uk", ""), data.get("name_ru", "")))
     conn.commit()

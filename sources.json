@@ -1005,5 +1005,75 @@
     "relevance": 6,
     "paid": false,
     "language": "en"
+  },
+
+  // ══════════════════════════════════════════════
+  // REDDIT — Automotive Communities
+  // ══════════════════════════════════════════════
+  {
+    "id": "reddit_cars",
+    "name": "Reddit r/cars",
+    "url": "https://www.reddit.com/r/cars/.rss",
+    "category": "Branchennews",
+    "region": "GLOBAL",
+    "relevance": 6,
+    "paid": false,
+    "language": "en",
+    "description": "Allgemeine Autonews & Community-Diskussionen"
+  },
+  {
+    "id": "reddit_electricvehicles",
+    "name": "Reddit r/electricvehicles",
+    "url": "https://www.reddit.com/r/electricvehicles/.rss",
+    "category": "Elektromobilität",
+    "region": "GLOBAL",
+    "relevance": 8,
+    "paid": false,
+    "language": "en",
+    "description": "Elektroautos, Ladetechnik, EV-Markt"
+  },
+  {
+    "id": "reddit_automotive",
+    "name": "Reddit r/automotive",
+    "url": "https://www.reddit.com/r/automotive/.rss",
+    "category": "Branchennews",
+    "region": "GLOBAL",
+    "relevance": 7,
+    "paid": false,
+    "language": "en",
+    "description": "Automotive-Industrie Nachrichten & Diskussionen"
+  },
+  {
+    "id": "reddit_mechanicadvice",
+    "name": "Reddit r/MechanicAdvice",
+    "url": "https://www.reddit.com/r/MechanicAdvice/.rss",
+    "category": "Aftermarket",
+    "region": "GLOBAL",
+    "relevance": 7,
+    "paid": false,
+    "language": "en",
+    "description": "Reparaturen, Ersatzteile, Werkstattfragen — direkte Zielgruppe von AUTODOC"
+  },
+  {
+    "id": "reddit_automotiveindustry",
+    "name": "Reddit r/automotiveindustry",
+    "url": "https://www.reddit.com/r/automotiveindustry/.rss",
+    "category": "Marktdaten",
+    "region": "GLOBAL",
+    "relevance": 8,
+    "paid": false,
+    "language": "en",
+    "description": "Industrie-Trends, OEM-News, Marktdaten"
+  },
+  {
+    "id": "reddit_cartalk",
+    "name": "Reddit r/CarTalk",
+    "url": "https://www.reddit.com/r/CarTalk/.rss",
+    "category": "Branchennews",
+    "region": "GLOBAL",
+    "relevance": 5,
+    "paid": false,
+    "language": "en",
+    "description": "Community-Gespräche rund ums Auto"
   }
 ]

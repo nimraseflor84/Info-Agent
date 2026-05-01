@@ -1067,52 +1067,72 @@ Rules:
 - Key facts must be specific numbers or short impactful statements
 - Tone: Professional, factual, B2B-ready, no speculation"""
 
-    try:
-        message = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=4096,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        raw = message.content[0].text.strip()
-        print(f"  Artikel-Antwort: {len(raw)} Zeichen, starts_with: {raw[:30]!r}")
-        # JSON aus der Antwort extrahieren falls nötig
-        if not raw.startswith('{'):
-            match = re.search(r'\{[\s\S]*\}', raw)
-            if match:
-                raw = match.group(0)
-            else:
-                return jsonify({"error": f"KI-Antwort enthält kein JSON. Antwort-Anfang: {raw[:200]}"}), 500
-        result = json.loads(raw)
+    def extract_json(text):
+        """Extrahiert JSON robust aus KI-Antwort — auch aus Markdown-Codeblöcken."""
+        t = text.strip()
+        # Markdown-Codeblock entfernen: ```json ... ``` oder ``` ... ```
+        t = re.sub(r'^```(?:json)?\s*', '', t, flags=re.IGNORECASE)
+        t = re.sub(r'\s*```$', '', t)
+        t = t.strip()
+        # Direkt valides JSON?
+        if t.startswith('{'):
+            return t
+        # JSON-Block aus gemischtem Text heraussuchen
+        match = re.search(r'\{[\s\S]*\}', t)
+        if match:
+            return match.group(0)
+        return None
 
-        # Bild-URLs hinzufügen — shared used_ids verhindert Duplikate im Artikel
-        used_img_ids = set()
-        result["hero_image_url"] = get_image_url(
-            result.get("hero_image_hint", main_category), used_ids=used_img_ids)
-        for section in result.get("sections", []):
-            section["image_url"] = get_image_url(
-                section.get("image_hint", main_category), width=800, height=300,
-                used_ids=used_img_ids)
+    for attempt in range(1, 4):  # bis zu 3 Versuche
+        try:
+            message = client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=8000,
+                system="You are a JSON-only API. Always respond with a single valid JSON object. No markdown, no explanations, no code blocks — pure JSON only.",
+                messages=[{"role": "user", "content": prompt}]
+            )
+            raw = message.content[0].text.strip()
+            print(f"  Artikel-Antwort (Versuch {attempt}): {len(raw)} Zeichen, starts: {raw[:40]!r}")
+            extracted = extract_json(raw)
+            if not extracted:
+                print(f"  Kein JSON gefunden (Versuch {attempt}), nochmal...")
+                continue
+            result = json.loads(extracted)
+            break  # Erfolg
+        except json.JSONDecodeError as e:
+            print(f"  JSON-Fehler Versuch {attempt}: {e} | Anfang: {raw[:300]}")
+            if attempt == 3:
+                return jsonify({"error": "JSON-Fehler beim Parsen der KI-Antwort. Bitte nochmals versuchen."}), 500
+            continue
+        except Exception as e:
+            print(f"  Artikel-Fehler: {type(e).__name__}: {e}")
+            return jsonify({"error": f"{type(e).__name__}: {str(e)}"}), 500
+    else:
+        return jsonify({"error": "KI-Antwort enthält kein gültiges JSON nach 3 Versuchen."}), 500
 
-        # In DB speichern
-        db_conn = get_db()
-        db_conn.execute("""
-            INSERT INTO generated_articles
-            (headline, subheadline, meta_description, body, sources_used, created_date, language)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (result.get("headline"), result.get("subheadline"), result.get("meta_description"),
-              json.dumps(result), json.dumps(result.get("sources", [])), today, article_lang))
-        last_id = db_conn.execute("SELECT last_insert_rowid()").fetchone()[0]
-        db_conn.commit()
-        db_conn.close()
-        result["id"] = last_id
-        print(f"  ✓ Artikel erstellt: {result.get('headline','')[:60]}")
-        return jsonify(result)
-    except json.JSONDecodeError as e:
-        print(f"  JSON-Fehler: {e} | Anfang: {raw[:300]}")
-        return jsonify({"error": f"JSON-Fehler beim Parsen der KI-Antwort. Bitte nochmals versuchen."}), 500
-    except Exception as e:
-        print(f"  Artikel-Fehler: {type(e).__name__}: {e}")
-        return jsonify({"error": f"{type(e).__name__}: {str(e)}"}), 500
+    # Bild-URLs hinzufügen — shared used_ids verhindert Duplikate im Artikel
+    used_img_ids = set()
+    result["hero_image_url"] = get_image_url(
+        result.get("hero_image_hint", main_category), used_ids=used_img_ids)
+    for section in result.get("sections", []):
+        section["image_url"] = get_image_url(
+            section.get("image_hint", main_category), width=800, height=300,
+            used_ids=used_img_ids)
+
+    # In DB speichern
+    db_conn = get_db()
+    db_conn.execute("""
+        INSERT INTO generated_articles
+        (headline, subheadline, meta_description, body, sources_used, created_date, language)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (result.get("headline"), result.get("subheadline"), result.get("meta_description"),
+          json.dumps(result), json.dumps(result.get("sources", [])), today, article_lang))
+    last_id = db_conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+    db_conn.commit()
+    db_conn.close()
+    result["id"] = last_id
+    print(f"  ✓ Artikel erstellt: {result.get('headline','')[:60]}")
+    return jsonify(result)
 
 
 # ── Trend & Prognose Endpunkte ────────────────────────────────────────────────
